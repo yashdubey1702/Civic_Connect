@@ -1,0 +1,1199 @@
+/* ===== MODERN GOVERNMENT ADMIN DASHBOARD ===== */
+:root {
+    --primary-blue: #0d47a1;
+    --primary-dark-blue: #002171;
+    --primary-light-blue: #5472d3;
+    --accent-red: #b71c1c;
+    --accent-gold: #ffd600;
+    --neutral-white: #ffffff;
+    --neutral-light: #f8f9fa;
+    --neutral-medium: #e9ecef;
+    --neutral-dark: #212529;
+    --neutral-border: #dee2e6;
+    --success: #2e7d32;
+    --warning: #f57c00;
+    --danger: #c62828;
+    --info: #0277bd;
+    
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f7fa;
+    color: var(--neutral-dark);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ===== ENHANCED HEADER ===== */
+.gov-header {
+    background: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--primary-blue) 100%);
+    color: var(--neutral-white);
+    padding: 0.8rem 0;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.gov-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.gov-logo {
+    width: 45px;
+    height: 45px;
+    background: var(--neutral-white);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    border: 2px solid var(--accent-gold);
+}
+
+.gov-logo svg {
+    width: 25px;
+    height: 25px;
+    fill: var(--primary-blue);
+}
+
+.gov-titles h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.1rem;
+    letter-spacing: -0.5px;
+}
+
+.gov-titles .tagline {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* ===== DASHBOARD CONTROLS ===== */
+.dashboard-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-welcome {
+    color: var(--neutral-white);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.logout-btn {
+    background: rgba(255,255,255,0.15);
+    color: var(--neutral-white);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.logout-btn:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+/* ===== MAIN DASHBOARD CONTENT ===== */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+}
+
+.dashboard-header {
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-title {
+    color: var(--primary-blue);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* ===== STATISTICS CARDS ===== */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--neutral-white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary-blue);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--neutral-dark);
+    font-weight: 500;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: stretch; /* make children equal height */
+}
+
+/* Allow grid children to shrink within the grid to avoid forcing a stack/overflow */
+.dashboard-layout > .map-section,
+.dashboard-layout > .reports-section {
+    min-width: 0; /* critical for CSS grid: let content shrink instead of overflow */
+}
+
+.map-section, .reports-section {
+    background: var(--neutral-white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.map-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.map-section h2 {
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+.map-section p {
+    color: #6c757d;
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
+
+/* ===== MAP CONTROLS ===== */
+.map-controls {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 0.6rem;
+    border: 1px solid var(--neutral-border);
+    border-radius: 8px;
+    background: var(--neutral-white);
+    font-size: 0.9rem;
+    min-width: 140px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Unified filter chips above the map */
+.filter-chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+    background: var(--neutral-light);
+    border: 1px solid var(--neutral-border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    min-height: 44px; /* prevent layout jump when filters change */
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 12px;
+    line-height: 1;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.chip strong {
+    font-weight: 600;
+}
+
+/* ===== MAP STYLING ===== */
+#adminMap, #municipalMap {
+    height: 520px; /* align with table viewport below */
+    width: 100%;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.refresh-btn {
+    background: var(--primary-blue);
+    color: var(--neutral-white);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    align-self: center;
+}
+
+.refresh-btn:hover {
+    background: var(--primary-dark-blue);
+}
+
+/* ===== REPORTS SECTION ===== */
+.reports-section h2 {
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+/* ===== FILTER CONTROLS ===== */
+.filter-controls {
+    background: #f8f9fa;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--neutral-dark);
+    font-size: 0.9rem;
+}
+
+#searchInput {
+    padding: 0.6rem;
+    border: 1px solid var(--neutral-border);
+    border-radius: 8px;
+    background: var(--neutral-white);
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== REPORTS TABLE ===== */
+.reports-container {
+    background: var(--neutral-white);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    flex: 1 1 auto; /* fill remaining height to balance with map */
+}
+
+.table-responsive {
+    overflow-x: auto;
+    max-height: 520px; /* match map height */
+}
+
+.reports-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+    table-layout: auto; /* allow natural sizing and prevent 0-width columns */
+    min-width: 780px; /* keep columns visible without forcing single-column layout */
+}
+
+.reports-table th {
+    background: var(--primary-blue);
+    color: var(--neutral-white);
+    padding: 0.75rem 1rem; /* slightly bigger for better readability */
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    font-size: 0.9rem; /* average readable size similar to municipal admin */
+    line-height: 1.3;
+    white-space: nowrap; /* prevent tall headers caused by wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 2px solid var(--neutral-border);
+}
+
+.reports-table th:first-child {
+    border-top-left-radius: var(--border-radius);
+}
+
+.reports-table th:last-child {
+    border-top-right-radius: var(--border-radius);
+}
+
+.reports-table td {
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--neutral-border);
+    vertical-align: middle;
+    line-height: 1.25; /* compact rows */
+    word-break: normal; /* avoid letter-per-line unless overridden */
+    overflow: hidden; /* prevent content from expanding cell */
+}
+
+/* Subtle hover for readability */
+.reports-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Section title bar for Map and Reports headings */
+.section-title {
+    background: var(--primary-blue);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+}
+
+/* Description cell with inline truncation and action */
+.desc-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    min-width: 0; /* allow children to shrink for ellipsis */
+    width: 100%;
+}
+
+/* Single-line ellipsis utility for cells like Category */
+.cell-ellipsis {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all; /* avoid breaking letters */
+}
+
+/* Truncated description text (kept on one line; full text via modal) */
+.desc-text {
+    display: inline-block;
+    flex: 1 1 auto; /* take remaining width */
+    max-width: calc(100% - 86px); /* leave room for the View more button */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    min-width: 0; /* enable proper shrinking in flex parent */
+    color: #1f2937; /* ensure readable text color */
+    margin-right: 6px;
+}
+
+.view-more {
+    background: transparent;
+    border: 1px solid var(--neutral-border);
+    color: var(--primary-blue);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto; /* do not shrink the button */
+}
+
+.view-more:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.no-desc { color: #6c757d; font-style: italic; }
+
+.reports-table tr:last-child td {
+    border-bottom: none;
+}
+
+.reports-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ===== STATUS BADGES ===== */
+.status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-reported { background: #ffebee; color: #c62828; }
+.status-acknowledged { background: #fff3e0; color: #ef6c00; }
+.status-in-progress { background: #e3f2fd; color: #1565c0; }
+.status-resolved { background: #e8f5e9; color: #2e7d32; }
+
+/* ===== ACTION CONTROLS ===== */
+.status-select {
+    padding: 0.5rem;
+    border: 1px solid var(--neutral-border);
+    border-radius: 6px;
+    background: var(--neutral-white);
+    font-weight: 500;
+    min-width: 140px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.2);
+}
+
+/* ===== LOADING AND EMPTY STATES ===== */
+.loading-state, .empty-state, .error-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--neutral-dark);
+    opacity: 0.7;
+}
+
+.loading-spinner {
+    border: 3px solid var(--neutral-light);
+    border-top: 3px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== MAP LEGEND ===== */
+.map-legend {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: var(--neutral-white);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    font-size: 0.8em;
+    line-height: 1.4;
+    max-width: 180px;
+}
+
+.map-legend h4 {
+    margin: 0 0 8px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--neutral-border);
+    color: var(--primary-blue);
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+/* ===== FOOTER ===== */
+.gov-footer {
+    background: var(--neutral-dark);
+    color: var(--neutral-white);
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.footer-bottom {
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    opacity: 0.8;
+    font-size: 0.85rem;
+}
+
+/* ===== NOTIFICATION STYLES ===== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 0.9rem 1.3rem;
+    border-radius: var(--border-radius);
+    color: var(--neutral-white);
+    font-weight: 500;
+    z-index: 10000;
+    box-shadow: var(--shadow-lg);
+    animation: slideIn 0.3s ease-out;
+    font-size: 0.9rem;
+}
+
+.notification.success {
+    background: var(--success);
+}
+
+.notification.error {
+    background: var(--danger);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+.pagination-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.pagination-btn {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--neutral-border);
+    background: white;
+    color: #0d47a1;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #0d47a1;
+    color: white;
+}
+
+.pagination-btn.active {
+    background: #0d47a1;
+    color: white;
+    border-color: #0d47a1;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Constrain Description (3rd column) and Reported By (4th column) */
+/* Column widths (match header order) */
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) { /* ID */
+    width: 60px;
+}
+
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2) { /* Category */
+    min-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Set Description column width on the actual 3rd column (header + cells) */
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+    width: 32%;
+    min-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.reports-table th:nth-child(4),
+.reports-table td:nth-child(4) { /* Reported By */
+    min-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reports-table th:nth-child(5),
+.reports-table td:nth-child(5) { /* Image */
+    min-width: 70px;
+}
+
+.reports-table th:nth-child(6),
+.reports-table td:nth-child(6) { /* Status */
+    min-width: 120px;
+}
+
+.reports-table th:nth-child(7),
+.reports-table td:nth-child(7) { /* Date Reported */
+    min-width: 120px;
+}
+
+.reports-table th:nth-child(8),
+.reports-table td:nth-child(8) { /* Actions */
+    min-width: 120px;
+}
+
+/* Description renders exactly like other cells */
+.description-cell {
+    color: #111827;
+    display: inline; /* inline content like Category/Reported By */
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    white-space: inherit;
+    overflow: visible;
+    text-overflow: inherit;
+}
+
+/* Ensure the td itself enforces truncation identically */
+.reports-table td:nth-child(3) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Keep header and cells from wrapping oddly */
+.reports-table th,
+.reports-table td {
+    overflow: hidden;
+}
+
+/* Center the ID column for neatness */
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) {
+    text-align: center;
+}
+
+.reports-table th:nth-child(4),
+.reports-table td:nth-child(4) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Filter bar layout */
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: .75rem 1rem;
+}
+.filter-controls .filter-group { margin: 0; }
+.filter-actions { margin-left: auto; }
+
+/* Fix common column widths so layout remains stable */
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) { /* ID */
+    width: 60px;
+}
+
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2) { /* Category */
+    width: 140px;
+    white-space: nowrap; /* keep short words on one line */
+    overflow: hidden;
+    text-overflow: ellipsis; /* show … if too long */
+    min-width: 120px; /* avoid too-narrow column causing vertical stacking */
+}
+
+.reports-table th:nth-child(5),
+.reports-table td:nth-child(5) { /* Image */
+    width: 90px;
+}
+
+.reports-table th:nth-child(6),
+.reports-table td:nth-child(6) { /* Status */
+    width: 130px;
+}
+
+.reports-table th:nth-child(7),
+.reports-table td:nth-child(7) { /* Date */
+    width: 130px;
+    white-space: nowrap;
+}
+
+.reports-table th:nth-child(8),
+.reports-table td:nth-child(8) { /* Actions */
+    width: 150px;
+}
+
+@media (max-width: 768px) {
+    .reports-table th:nth-child(3),
+    .reports-table td:nth-child(3) {
+        max-width: 100%;
+    }
+    .reports-table th:nth-child(4),
+    .reports-table td:nth-child(4) {
+        max-width: 60vw;
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    #adminMap {
+        height: 350px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+        padding: 0 1rem;
+    }
+    
+    .dashboard-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .dashboard-container {
+        padding: 0 1rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-controls {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    
+    .filter-chips {
+        padding: 10px;
+        gap: 6px;
+        min-height: 48px;
+    }
+    
+    .chip {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+    
+    .reports-table {
+        font-size: 0.8rem;
+    }
+    
+    .reports-table th,
+    .reports-table td {
+        padding: 0.7rem 0.8rem;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+
+/* Table row animations */
+.reports-table tr {
+    transition: background-color 0.2s ease;
+}
+
+/* Hover effects for interactive elements */
+.filter-select:hover, .status-select:hover {
+    border-color: var(--primary-light-blue);
+}
+
+/* Focus styles for accessibility */
+.filter-select:focus, .status-select:focus, #searchInput:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ===== MAP FIXES ===== */
+.map-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+}
+
+#adminMap {
+    height: 500px;
+    width: 100%;
+    border-radius: 8px;
+    z-index: 1; /* Ensure proper stacking */
+}
+
+/* Prevent map from capturing scroll events when not in view */
+.leaflet-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Fix for map tiles loading */
+.leaflet-layer {
+    will-change: auto;
+}
+
+/* Ensure proper rendering on mobile */
+.leaflet-touch .leaflet-control-layers, 
+.leaflet-touch .leaflet-bar {
+    border: none;
+}
+
+/* Fix for map in scrollable containers */
+.content-card.map-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    position: relative;
+    flex: 1;
+    min-height: 400px; /* Ensure minimum height */
+}
+
+/* Fix for map legend positioning */
+.map-legend {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    background: var(--white);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 180px;
+}
+
+/* Add to admin-dashboard.css */
+.mobile-only { display: none; }
+
+@media (max-width: 768px) {
+    .desktop-only { display: none !important; }
+    .mobile-only { display: block !important; }
+    
+    /* Touch-friendly tables */
+    .report-row {
+        padding: 12px !important;
+        margin: 8px 0 !important;
+        border: 1px solid #eee !important;
+        border-radius: 8px !important;
+    }
+}
+/* Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    margin: 5% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 800px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-content img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    z-index: 1001;
+}
+
+.close:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Report thumbnail styles */
+.report-thumbnail {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid #e9ecef;
+}
+
+.report-thumbnail:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-blue);
+}
+
+.no-image {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+    
+    .close {
+        top: 10px;
+        right: 15px;
+        font-size: 30px;
+        width: 35px;
+        height: 35px;
+    }
+}
+/* Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    margin: 5% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 800px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-content img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    z-index: 1001;
+}
+
+.close:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Report thumbnail styles */
+.report-thumbnail {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid #e9ecef;
+}
+
+.report-thumbnail:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-blue);
+}
+
+.no-image {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+    
+    .close {
+        top: 10px;
+        right: 15px;
+        font-size: 30px;
+        width: 35px;
+        height: 35px;
+    }
+}

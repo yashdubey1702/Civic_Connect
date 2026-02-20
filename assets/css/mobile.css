@@ -1,0 +1,343 @@
+/* assets/css/mobile.css - UPDATED AND FIXED */
+
+@media only screen and (max-width: 768px) {
+    /* ===== DEBUG: Confirm CSS is loading ===== */
+    body::before {
+        content: "MOBILE CSS LOADED!";
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: green;
+        color: white;
+        padding: 10px;
+        z-index: 9999;
+        font-weight: bold;
+        display: block !important;
+    }
+
+    /* ===== SIDEBAR: HIDE BY DEFAULT, SHOW WHEN ACTIVE ===== */
+    .user-sidebar.sidebar {
+        position: fixed !important;
+        left: -300px !important; /* Hide off-screen by default */
+        top: 0 !important;
+        height: 100vh !important;
+        width: 280px !important;
+        background: #f8f9fa !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+        transition: left 0.3s ease !important;
+        z-index: 1000 !important;
+        overflow-y: auto !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* Sidebar when active (visible) */
+    .user-sidebar.sidebar.active {
+        left: 0 !important;
+    }
+
+    /* ===== OVERLAY FOR WHEN SIDEBAR IS OPEN ===== */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 999 !important;
+    }
+
+    .sidebar-overlay.active {
+        display: block !important;
+    }
+
+    /* ===== MAIN CONTENT: PUSH WHEN SIDEBAR OPENS ===== */
+    .user-main {
+        width: 100% !important;
+        transition: transform 0.3s ease !important;
+        position: relative;
+        z-index: 1 !important;
+        min-height: 100vh;
+    }
+
+    .user-main.sidebar-open {
+        transform: translateX(280px) !important;
+        overflow: hidden !important;
+    }
+
+    /* ===== HAMBURGER BUTTON ===== */
+    .hamburger-btn {
+        display: block !important;
+        font-size: 24px !important;
+        background: #000080 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 10px 15px !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+        z-index: 1001 !important;
+        margin-right: 15px !important;
+    }
+
+    /* ===== HEADER FIXES ===== */
+    .user-header {
+        padding: 10px 15px !important;
+        position: sticky !important;
+        top: 0;
+        z-index: 100 !important;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .header-left {
+        display: flex !important;
+        align-items: center !important;
+        flex: 1 !important;
+    }
+
+    .header-left h1 {
+        font-size: 1.3rem !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .header-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    /* ===== SIDEBAR CONTENT FIXES - MAKE SURE CONTENT IS VISIBLE ===== */
+    .sidebar-header,
+    .sidebar-menu,
+    .sidebar-footer {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .logo-container {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .gov-logo {
+        width: 40px !important;
+        height: 40px !important;
+        background: #000080 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .gov-logo svg {
+        width: 24px !important;
+        height: 24px !important;
+        fill: white !important;
+    }
+
+    .logo-text h2 {
+        font-size: 1.1rem !important;
+        margin: 0 0 4px 0 !important;
+        color: #000080 !important;
+    }
+
+    .logo-text span {
+        font-size: 0.8rem !important;
+        color: #666 !important;
+    }
+
+    .sidebar-menu {
+        padding: 15px 0 !important;
+        margin: 0 !important;
+        list-style: none !important;
+    }
+
+    .menu-item {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .menu-item a {
+        display: flex !important;
+        align-items: center !important;
+        padding: 12px 20px !important;
+        color: #333 !important;
+        text-decoration: none !important;
+        transition: background-color 0.2s ease !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .menu-item a:hover {
+        background-color: #e8f0fe !important;
+    }
+
+    .menu-item.active a {
+        background-color: #000080 !important;
+        color: white !important;
+    }
+
+    .menu-item i {
+        width: 20px !important;
+        text-align: center !important;
+        font-size: 1.1rem !important;
+    }
+
+    .menu-item span {
+        font-size: 0.95rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .sidebar-footer {
+        padding: 20px 15px !important;
+        border-top: 1px solid #e0e0e0 !important;
+        margin-top: auto !important;
+    }
+
+    .user-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin-bottom: 15px !important;
+    }
+
+    .user-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        background: #ddd !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .user-avatar i {
+        color: #666 !important;
+        font-size: 1.2rem !important;
+    }
+
+    .user-details {
+        flex: 1 !important;
+    }
+
+    .user-name {
+        display: block !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .user-role {
+        display: block !important;
+        font-size: 0.8rem !important;
+        color: #666 !important;
+    }
+
+    .logout-btn {
+        display: flex !important;
+        align-items: center !important;
+        padding: 10px 15px !important;
+        color: #d32f2f !important;
+        text-decoration: none !important;
+        border: 1px solid #d32f2f !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
+        gap: 8px !important;
+        justify-content: center !important;
+    }
+
+    .logout-btn:hover {
+        background-color: #d32f2f !important;
+        color: white !important;
+    }
+
+    /* ===== PREVENT BODY SCROLL WHEN SIDEBAR IS OPEN ===== */
+    body.sidebar-open {
+        overflow: hidden !important;
+    }
+
+    /* ===== HEADER BUTTONS ===== */
+    .new-report-btn,
+    .notification-btn {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .theme-toggle-container {
+        margin-right: 10px !important;
+    }
+
+    .notification-badge {
+        position: absolute !important;
+        top: -5px !important;
+        right: -5px !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* ===== DASHBOARD CONTENT RESPONSIVENESS ===== */
+    .dashboard-content {
+        padding: 15px 10px !important;
+    }
+
+    .welcome-card {
+        flex-direction: column !important;
+        padding: 20px 15px !important;
+    }
+
+    .welcome-image {
+        margin-top: 20px !important;
+        margin-left: 0 !important;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .content-card {
+        padding: 15px !important;
+    }
+
+    /* ===== UTILITY CLASSES ===== */
+    .hidden-mobile {
+        display: none !important;
+    }
+
+    .visible-mobile {
+        display: block !important;
+    }
+}
+
+/* ===== DEBUG: Remove this after sidebar works ===== */
+@media only screen and (max-width: 768px) {
+    .user-sidebar.sidebar.debug {
+        border: 5px solid red !important;
+        background: yellow !important;
+    }
+    
+    .user-sidebar.sidebar.debug * {
+        border: 1px solid blue !important;
+        background: rgba(255,255,255,0.9) !important;
+    }
+}

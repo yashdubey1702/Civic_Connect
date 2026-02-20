@@ -1,0 +1,172 @@
+/* assets/css/admin-mobile.css */
+
+@media only screen and (max-width: 768px) {
+    /* ===== MOBILE ADMIN DASHBOARD FIXES ===== */
+    
+    /* Force full width on all containers */
+    .admin-main, 
+    .dashboard-content, 
+    .content-grid, 
+    .content-card,
+    .table-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Stack grid items vertically */
+    .content-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Fix table responsiveness */
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    table {
+        min-width: 600px !important; /* Allow horizontal scrolling */
+        font-size: 14px !important;
+    }
+
+    /* Adjust header for mobile */
+    .admin-header {
+        padding: 10px 15px !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    .header-left, 
+    .header-right {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    /* Fix card layouts */
+    .content-card {
+        padding: 15px !important;
+        margin: 10px 0 !important;
+    }
+
+    .card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        padding: 15px !important;
+    }
+
+    /* Button and form fixes */
+    .btn, 
+    button, 
+    .action-btn,
+    .new-report-btn {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 12px 15px !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        margin: 5px 0 !important;
+    }
+
+    /* Form elements mobile optimization */
+    input, 
+    select, 
+    textarea {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        padding: 12px !important;
+        min-height: 44px !important;
+    }
+
+    /* Stats and metrics layout */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .stat-card {
+        padding: 15px !important;
+        text-align: center !important;
+    }
+
+    /* Modal mobile optimization */
+    .modal-content {
+        width: 95% !important;
+        margin: 10% auto !important;
+        max-height: 80vh !important;
+    }
+
+    .modal-body {
+        padding: 20px 15px !important;
+    }
+
+    /* Action buttons in tables */
+    .action-buttons {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+
+    /* Chart container responsiveness */
+    .chart-container {
+        height: 300px !important;
+        min-width: 100% !important;
+    }
+
+    /* Navigation and pagination */
+    .pagination {
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+    }
+
+    .pagination button {
+        min-width: 44px !important;
+        height: 44px !important;
+    }
+
+    /* Filter and search controls */
+    .filter-controls {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .search-box {
+        width: 100% !important;
+    }
+
+    /* Status badges and indicators */
+    .status-badge {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+
+    /* Utility classes for mobile */
+    .mobile-hidden {
+        display: none !important;
+    }
+
+    .mobile-visible {
+        display: block !important;
+    }
+
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+
+    /* Touch-friendly enhancements */
+    .touch-target {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Prevent horizontal scroll */
+    body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+}

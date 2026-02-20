@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e40af" />
+  <title>CivicConnect – Bhubaneswar</title>
+
+  <link rel="icon" href="assets/images/BPR.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="manifest" href="manifest.json">
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="gov-header">
+    <div class="header-content">
+      <div class="gov-brand">
+        <div class="gov-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" />
+          </svg>
+        </div>
+        <div class="gov-titles">
+          <h1>CivicConnect</h1>
+          <p class="tagline">Bhubaneswar Municipal Corporation • Citizen Services</p>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a href="#how-it-works" class="top-link">How it works</a>
+        <a href="register.php" class="top-link">Register</a>
+        <a href="login.php" class="top-link">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h2>Report Civic Issues in Bhubaneswar</h2>
+        <p>Help Bhubaneswar Municipal Corporation improve roads, lighting, sanitation, and public spaces.</p>
+
+        <div class="hero-ctas">
+          <a class="primary-btn" href="#map"><i class="fas fa-paper-plane"></i> Report an Issue</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="stat-number" id="totalReports">0</span>
+            <span class="stat-label">Reports Submitted</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-number" id="resolvedReports">0</span>
+            <span class="stat-label">Issues Resolved</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-number" id="activeUsers">0</span>
+            <span class="stat-label">Active Citizens</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-illustration">
+        <i class="fas fa-map-marked-alt"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section class="trust-badges">
+    <div class="badges-wrap">
+      <span class="badge"><i class="fas fa-shield-alt"></i> Secure & Transparent</span>
+      <span class="badge"><i class="fas fa-users"></i> Citizen-Centered</span>
+      <span class="badge"><i class="fas fa-bolt"></i> Faster Resolution</span>
+      <span class="badge"><i class="fas fa-map"></i> City-wide Coverage</span>
+    </div>
+  </section>
+
+ <!-- Main Content -->
+  <main class="main-content">
+    <div class="dashboard-grid">
+      <!-- Filter Panel -->
+      <aside class="filter-panel">
+        <div class="filter-header">
+          <h2><i class="fas fa-filter"></i> Report Filters</h2>
+          <button class="filter-help" onclick="alert('Filter community reports by category and status. Click on the map to report new issues.')">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </div>
+        
+        <div class="filter-section">
+          <h3><i class="fas fa-tag"></i> By Category</h3>
+          <div class="filter-options">
+            <div class="filter-option">
+              <input type="checkbox" id="filter-all-categories" name="category" value="all" checked>
+              <label for="filter-all-categories">All Categories</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-pothole" name="category" value="Pothole">
+              <label for="filter-pothole">Pothole</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-graffiti" name="category" value="Graffiti">
+              <label for="filter-graffiti">Graffiti</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-streetlight" name="category" value="Broken Streetlight">
+              <label for="filter-streetlight">Broken Streetlight</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-trash" name="category" value="Trash">
+              <label for="filter-trash">Trash Debris</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-other" name="category" value="Other">
+              <label for="filter-other">Other</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3><i class="fas fa-info-circle"></i> By Status</h3>
+          <div class="filter-options">
+            <div class="filter-option">
+              <input type="checkbox" id="filter-all-statuses" name="status" value="all" checked>
+              <label for="filter-all-statuses">All Statuses</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-reported" name="status" value="Reported">
+              <label for="filter-reported">Reported</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-acknowledged" name="status" value="Acknowledged">
+              <label for="filter-acknowledged">Acknowledged</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-inprogress" name="status" value="In Progress">
+              <label for="filter-inprogress">In Progress</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-resolved" name="status" value="Resolved">
+              <label for="filter-resolved">Resolved</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="apply-filters" onclick="applyFilters()">
+            <i class="fas fa-check"></i>
+            Apply Filters
+          </button>
+          <button class="clear-filters" onclick="clearFilters()">
+            <i class="fas fa-times"></i>
+            Clear Filters
+          </button>
+        </div>
+      </aside>
+
+   <!-- Map Container -->
+      <div class="map-container">
+        <div class="map-header">
+          <h2><i class="fas fa-map-marked-alt"></i> Community Issues Map</h2>
+          <div class="map-actions">
+            <button class="action-btn" onclick="loadExistingReports()">
+              <i class="fas fa-sync-alt"></i>
+              Refresh
+            </button>
+            <button class="action-btn" onclick="showMapHelp()">
+              <i class="fas fa-question-circle"></i>
+              Help
+            </button>
+          </div>
+        </div>
+        <div id="map">
+          <div class="map-legend">
+            <h4>Status Legend</h4>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #c62828;"></span>
+              <span>Reported (New Issue)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #f57c00;"></span>
+              <span>Acknowledged (Seen by Staff)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #0277bd;"></span>
+              <span>In Progress (Being Fixed)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #2e7d32;"></span>
+              <span>Resolved (Fixed)</span>
+            </div>
+          </div>
+          <div class="map-click-instruction">
+            <i class="fas fa-mouse-pointer"></i>
+            <p>Click inside Bhubaneswar city to report an issue</p>
+          </div>
+        </div>
+        <div class="community-cta">
+          <h3><i class="fas fa-hands-helping"></i> Join Our Community</h3>
+          <p>Create an account to report issues and track their progress</p>
+          <a href="register.php" class="cta-button">
+            <i class="fas fa-user-plus"></i>
+            Sign Up Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+   <!-- How It Works Section -->
+  <section id="how-it-works" class="how-it-works">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>Reporting community issues is simple and effective</p>
+    </div>
+    <div class="steps-container">
+      <div class="step">
+        <div class="step-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <h3>1. Locate the Issue</h3>
+        <p>Click on the map where you've noticed the problem</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3>2. Describe the Problem</h3>
+        <p>Select a category and provide details about the issue</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <i class="fas fa-camera"></i>
+        </div>
+        <h3>3. Add Photos (Optional)</h3>
+        <p>Upload images to help us better understand the issue</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>4. Track Progress</h3>
+        <p>Monitor the status of your report through resolution</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Submit New Report</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <!-- Login Prompt (shown when user is not logged in) -->
+        <div id="loginPrompt">
+          <div class="login-prompt-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h3>Login Required</h3>
+          <p>Please login to submit a report and help improve our community.</p>
+          <a href="login.php" class="submit-btn">
+            <i class="fas fa-sign-in-alt"></i>
+            Login to Submit Report
+          </a>
+          <p class="register-link">
+            Don't have an account? <a href="register.php">Register here</a>
+          </p>
+        </div>
+        
+        <!-- Report Form (shown when user is logged in) -->
+        <form id="reportForm">
+          <input type="hidden" id="lat">
+          <input type="hidden" id="lng">
+          
+          <div class="form-group">
+            <label for="category">Issue Category</label>
+            <select class="form-control" id="category" name="category" required>
+              <option value="">Select a category</option>
+              <option value="Pothole">Pothole</option>
+              <option value="Graffiti">Graffiti</option>
+              <option value="Broken Streetlight">Broken Streetlight</option>
+              <option value="Trash">Trash Debris</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email (Optional - for updates)</label>
+            <input type="email" class="form-control" id="email" name="email" 
+                   placeholder="Enter your email for status updates">
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Please describe the issue in detail..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="image">Upload Photo (Optional)</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-paper-plane"></i>
+            Submit Report
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Government Footer -->
+  <footer class="gov-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Municipal Services</h3>
+        <p>Dedicated to maintaining and improving our community infrastructure and public spaces.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Information</h3>
+        <p>Municipal Hall: (063) 123-4567<br>
+        Emergency: 100<br>
+        Email: Provincial@municipal.gov.ph</p>
+      </div>
+      <div class="footer-section">
+        <h3>Office Hours</h3>
+        <p>Monday-Friday: 8:00 AM - 5:00 PM<br>
+        Saturday: 8:00 AM - 12:00 PM<br>
+        Closed on Sundays and Holidays</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Municipal Government of Bhubaneswar. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
+  <script src="assets/js/map-common.js"></script>
+  <script src="assets/js/public-map.js"></script>
+</body>
+</html>

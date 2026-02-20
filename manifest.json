@@ -1,0 +1,41 @@
+{
+  "short_name": "CivicConnect",
+  "name": "Bhubaneswar Civic Issue Reporting System",
+  "description": "Report and track civic issues in Bhubaneswar such as potholes, garbage problems, and broken streetlights.",
+  "icons": [
+    {
+      "src": "/town_issues/assets/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/town_issues/assets/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/town_issues/assets/images/desktop-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Bhubaneswar civic dashboard on desktop"
+    },
+    {
+      "src": "/town_issues/assets/images/mobile-narrow.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Civic issue reporting on mobile"
+    }
+  ],
+  "start_url": "/town_issues/login.php",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/town_issues/",
+  "theme_color": "#0d47a1",
+  "orientation": "portrait"
+}
