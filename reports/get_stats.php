@@ -6,75 +6,80 @@ require_once '../config/Auth.php';
 
 session_start();
 
+// ----------------------------------
+// STEP 0: Initialize database and auth
+// ----------------------------------
 $database = new Database();
 $db = $database->getConnection(); // mysqli
 $auth = new Auth($db);
 
-/*
- UI sends ?ward=
- DB column is still `municipality`
-*/
-$ward = trim($_GET['ward'] ?? 'all');
+// ----------------------------------
+// STEP 1: Determine ward from session (for municipal admin)
+// ----------------------------------
+$ward =$_SESSION['ward'];
 
-/*
- Normalize ward (CRITICAL)
-*/
-if ($ward !== 'all' && $ward !== '') {
-    $ward = strtoupper($ward); // w9 → W9
-}
+// if ($auth->isMunicipalAdmin()) {
+//     $ward = trim($auth->getWard()); // e.g., "W12"
+// }
 
+// Make ward uppercase to match DB
+//$ward = $ward;
+// echo "ward is $ward";
+// ----------------------------------
+// STEP 2: Build WHERE clause robustly
+// ----------------------------------
 $whereClause = '';
-$bindValues = [];
-$bindTypes  = '';
+$bindValues  = [];
+$bindTypes   = '';
 
-/*
- Municipal admin: force assigned ward
-*/
-if ($auth->isMunicipalAdmin()) {
-    $adminWard = strtoupper($auth->getMunicipality());
-    $whereClause = 'WHERE municipality = ?';
-    $bindValues[] = $adminWard;
-    $bindTypes .= 's';
-}
-/*
- Admin-selected ward
-*/
-elseif ($ward !== 'all' && $ward !== '') {
-    $whereClause = 'WHERE municipality = ?';
+if (!empty($ward)) {
+    // Compare uppercase trimmed strings
+    $whereClause = "WHERE UPPER(TRIM(municipality)) = ?";
     $bindValues[] = $ward;
     $bindTypes .= 's';
 }
 
+// ----------------------------------
+// STEP 3: Prepare SQL query with status counts
+// ----------------------------------
 $query = "
-    SELECT
-        COUNT(*) AS total,
-        SUM(CASE WHEN status = 'Reported' THEN 1 ELSE 0 END) AS reported,
-        SUM(CASE WHEN status = 'Acknowledged' THEN 1 ELSE 0 END) AS acknowledged,
-        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress,
-        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) AS resolved,
-        COUNT(DISTINCT email) AS unique_users
-    FROM reports
-    $whereClause
+SELECT
+    COUNT(*) AS total,
+    SUM(TRIM(status) = 'Reported') AS reported,
+    SUM(TRIM(status) = 'Acknowledged') AS acknowledged,
+    SUM(TRIM(status) = 'In Progress') AS in_progress,
+    SUM(TRIM(status) = 'Resolved') AS resolved,
+    COUNT(DISTINCT email) AS unique_users
+FROM reports
+$whereClause
 ";
 
+// ----------------------------------
+// STEP 4: Prepare and execute statement
+// ----------------------------------
 $stmt = $db->prepare($query);
+if (!$stmt) {
+    echo json_encode(['error' => 'Database prepare failed', 'sql_error' => $db->error]);
+    exit;
+}
 
 if (!empty($bindValues)) {
     $stmt->bind_param($bindTypes, ...$bindValues);
 }
 
 $stmt->execute();
-$stats = $stmt->get_result()->fetch_assoc();
+$result = $stmt->get_result();
+$stats = $result->fetch_assoc();
 $stmt->close();
 
-/*
- Fail-safe response
-*/
-echo json_encode($stats ?: [
-    'total'         => 0,
-    'reported'      => 0,
-    'acknowledged'  => 0,
-    'in_progress'   => 0,
-    'resolved'      => 0,
-    'unique_users'  => 0
+// ----------------------------------
+// STEP 5: Return JSON (cast to int)
+// ----------------------------------
+echo json_encode([
+    'total'        => (int)($stats['total'] ?? 0),
+    'reported'     => (int)($stats['reported'] ?? 0),
+    'acknowledged' => (int)($stats['acknowledged'] ?? 0),
+    'in_progress'  => (int)($stats['in_progress'] ?? 0),
+    'resolved'     => (int)($stats['resolved'] ?? 0),
+    'unique_users' => (int)($stats['unique_users'] ?? 0)
 ]);

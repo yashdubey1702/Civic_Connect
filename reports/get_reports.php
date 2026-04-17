@@ -46,7 +46,8 @@ if ($auth->isCitizen()) {
 
 /* Ward Admin → forced ward */
 elseif ($auth->isWardAdmin()) {
-    $adminWard = strtoupper($auth->getWard());
+    // $adminWard = strtoupper($auth->getWard());
+    $adminWard = strtoupper($_SESSION['ward']);
     $where[] = "municipality = ?";
     $bindValues[] = $adminWard;
     $bindTypes .= "s";
@@ -164,4 +165,4 @@ echo json_encode([
         'total_records' => $totalRecords,
         'total_pages'   => $totalPages
     ]
-]); 
+]);
