@@ -1,14 +1,18 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
-require_once 'config/database.php';
-require_once 'config/Auth.php';
+
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/Auth.php';
 
 $database = new Database();
 $db = $database->getConnection();
 $auth = new Auth($db);
 
-// Require admin authentication
-$auth->requireAuth('admin');
+// Correct auth check
+$auth->requireAuth('super_admin');
 
 // Get user info
 $email = $_SESSION['email'];
@@ -63,14 +67,30 @@ $user_type = $_SESSION['user_type'];
         </p>
     </div>
 
-    <!-- Stats -->
-    <div class="dashboard-stats">
-        <div class="stat-card"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Total Reports</div></div>
-        <div class="stat-card"><div class="stat-number" id="reportedCount">0</div><div class="stat-label">Reported</div></div>
-        <div class="stat-card"><div class="stat-number" id="acknowledgedCount">0</div><div class="stat-label">Acknowledged</div></div>
-        <div class="stat-card"><div class="stat-number" id="inProgressCount">0</div><div class="stat-label">In Progress</div></div>
-        <div class="stat-card"><div class="stat-number" id="resolvedCount">0</div><div class="stat-label">Resolved</div></div>
-    </div>
+
+    <!-- Statistics Cards -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalReports">0</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="reportedCount">0</div>
+                <div class="stat-label">Reported</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="acknowledgedCount">0</div>
+                <div class="stat-label">Acknowledged</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressCount">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="resolvedCount">0</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
 
     <!-- Filters -->
     <div class="filter-controls" style="margin-top: 1rem;">
@@ -97,9 +117,9 @@ $user_type = $_SESSION['user_type'];
             <select class="filter-select" id="categoryFilter" onchange="applyFilters()">
                 <option value="all">All Categories</option>
                 <option value="Pothole">Pothole</option>
-                <option value="Garbage">Garbage</option>
-                <option value="Broken Streetlight">Streetlight</option>
-                <option value="Drainage">Drainage</option>
+                <option value="Graffiti">Graffiti</option>
+                <option value="Broken Streetlight">Broken Streetlight</option>
+                <option value="Trash">Trash</option>
                 <option value="Other">Other</option>
             </select>
         </div>
@@ -120,17 +140,36 @@ $user_type = $_SESSION['user_type'];
     <div class="dashboard-layout">
 
         <!-- Map -->
-        <div class="map-section">
+       <div class="map-section">
             <h2>Reports Map</h2>
             <p>All reported civic issues within Bhubaneswar city limits</p>
 
-            <div id="adminMap">
-                <div class="map-legend">
-                    <h4>Status Legend</h4>
-                    <div class="legend-item"><span class="legend-color" style="background:#c62828"></span>Reported</div>
-                    <div class="legend-item"><span class="legend-color" style="background:#f57c00"></span>Acknowledged</div>
-                    <div class="legend-item"><span class="legend-color" style="background:#0277bd"></span>In Progress</div>
-                    <div class="legend-item"><span class="legend-color" style="background:#2e7d32"></span>Resolved</div>
+            <div class="map-controls">
+                <div class="filter-chips" id="mapFilterChips"></div>
+            </div>
+
+            <div class="map-wrapper">
+                 <div id="adminMap">
+                    <!-- Map Legend -->
+                    <div class="map-legend">
+                        <h4>Status Legend</h4>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #c62828;"></span>
+                            <span>Reported</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #f57c00;"></span>
+                            <span>Acknowledged</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #0277bd;"></span>
+                            <span>In Progress</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #2e7d32;"></span>
+                            <span>Resolved</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,6 +205,6 @@ $user_type = $_SESSION['user_type'];
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-<script src="assets/js/admin-dashboard.js"></script>
+<script src="assets/js/admin-dashboard.js?v=1.1"></script>
 </body>
 </html>

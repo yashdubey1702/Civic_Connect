@@ -71,69 +71,134 @@ $wardLabel = strtoupper($ward);
         </p>
     </div>
 
-    <!-- STATS -->
-    <div class="dashboard-stats">
-        <div class="stat-card"><div id="totalReports">0</div><span>Total Reports</span></div>
-        <div class="stat-card"><div id="reportedCount">0</div><span>Reported</span></div>
-        <div class="stat-card"><div id="acknowledgedCount">0</div><span>Acknowledged</span></div>
-        <div class="stat-card"><div id="inProgressCount">0</div><span>In Progress</span></div>
-        <div class="stat-card"><div id="resolvedCount">0</div><span>Resolved</span></div>
-    </div>
+     <!-- Statistics Cards -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalReports">0</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="reportedCount">0</div>
+                <div class="stat-label">Reported</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="acknowledgedCount">0</div>
+                <div class="stat-label">Acknowledged</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressCount">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="resolvedCount">0</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
 
     <!-- FILTERS -->
-    <div class="filter-controls">
-        <div class="filter-group">
-            <label>Status</label>
-            <select id="statusFilter" onchange="applyFilters()">
-                <option value="all">All</option>
-                <option value="Reported">Reported</option>
-                <option value="Acknowledged">Acknowledged</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-            </select>
+    <div class="filter-controls" style="margin-top: 1rem;">
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+                    <option value="all">All Statuses</option>
+                    <option value="Reported">Reported</option>
+                    <option value="Acknowledged">Acknowledged</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category:</label>
+                <select class="filter-select" id="categoryFilter" onchange="applyFilters()">
+                    <option value="all">All Categories</option>
+                    <option value="Pothole">Pothole</option>
+                    <option value="Graffiti">Graffiti</option>
+                    <option value="Broken Streetlight">Broken Streetlight</option>
+                    <option value="Trash">Trash</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchInput">Search:</label>
+                <input type="text" class="filter-select" id="searchInput" 
+                       placeholder="Search by category, description, email..." onkeyup="handleSearch()">
+            </div>
+            <div class="filter-actions">
+                <button class="refresh-btn" onclick="refreshAll()">Refresh</button>
+            </div>
         </div>
-
-        <div class="filter-group">
-            <label>Category</label>
-            <select id="categoryFilter" onchange="applyFilters()">
-                <option value="all">All</option>
-                <option value="Pothole">Pothole</option>
-                <option value="Garbage">Garbage</option>
-                <option value="Street Light">Street Light</option>
-                <option value="Water Supply">Water Supply</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-
-        <div class="filter-group">
-            <input type="text" id="searchInput" placeholder="Search…" onkeyup="handleSearch()">
-        </div>
-
-        <button class="refresh-btn" onclick="refreshAll()">Refresh</button>
-    </div>
 
     <!-- LAYOUT -->
-    <div class="dashboard-layout">
+<div class="dashboard-layout">
 
-        <!-- MAP -->
-        <div class="map-section">
-            <h2>Ward <?= $wardLabel ?> Map View</h2>
-            <div id="municipalMap"></div>
+    <!-- MAP -->
+    <div class="map-section">
+        <h2>Ward <?= $wardLabel ?> Map View</h2>
+        <p class="section-subtitle">
+            View all reported civic issues in this ward
+        </p>
+
+        <div class="map-wrapper">
+            <div id="municipalMap">
+                
+                <!-- Map Legend -->
+                <div class="map-legend">
+                    <h4>Status Legend</h4>
+
+                    <div class="legend-item">
+                        <span class="legend-color" style="background:#c62828;"></span>
+                        <span>Reported</span>
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color" style="background:#f57c00;"></span>
+                        <span>Acknowledged</span>
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color" style="background:#0277bd;"></span>
+                        <span>In Progress</span>
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color" style="background:#2e7d32;"></span>
+                        <span>Resolved</span>
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-        <!-- TABLE -->
-        <div class="reports-section">
-            <h2>Reports</h2>
-            <div id="reportsTable"></div>
-            <div id="pagination"></div>
-        </div>
-
     </div>
+
+    <!-- TABLE -->
+    <div class="reports-section">
+        <h2>Reports Management</h2>
+
+        <div class="reports-container">
+            <div class="table-responsive">
+                <div id="reportsTable">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading reports...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pagination" class="pagination-container"></div>
+    </div>
+
+</div>
 </div>
 
 <!-- FOOTER -->
 <footer class="gov-footer">
-    <p>© <?= date('Y') ?> Bhubaneswar Municipal Corporation – CivicConnect</p>
+    <div class="footer-content">
+        <p>Bhubaneswar Municipal Corporation – CivicConnect</p>
+        <div class="footer-bottom">
+            <p>© <?= date('Y') ?> Authorized Administrative Access</p>
+        </div>
+    </div>
 </footer>
 
 <!-- JS -->

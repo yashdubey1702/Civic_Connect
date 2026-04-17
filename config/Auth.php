@@ -11,12 +11,11 @@ class Auth {
         }
     }
 
-//LOGIN
-     
+    // ================= LOGIN =================
     public function login($email, $password) {
         $query = "SELECT id, email, password_hash, full_name, user_type, ward, is_active
                   FROM {$this->table_name}
-                  WHERE email = ? AND is_active = 1
+                  WHERE LOWER(email) = LOWER(?) AND is_active = 1
                   LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
@@ -33,8 +32,8 @@ class Auth {
                 $_SESSION['user_id']   = $row['id'];
                 $_SESSION['email']     = $row['email'];
                 $_SESSION['full_name'] = $row['full_name'];
-                $_SESSION['user_type'] = $row['user_type'];
-                $_SESSION['ward']      = $row['ward']; // NULL for others
+                $_SESSION['user_type'] = strtolower(trim($row['user_type']));
+                $_SESSION['ward']      = strtolower($row['ward']);
 
                 $this->updateLastLogin($row['id']);
                 return true;
@@ -52,9 +51,7 @@ class Auth {
         $stmt->execute();
     }
 
-
-//SESSION
-   
+    // ================= SESSION =================
     public function isLoggedIn() {
         return !empty($_SESSION['logged_in']);
     }
@@ -64,58 +61,70 @@ class Auth {
         session_destroy();
     }
 
-//ROLE CHECKS
+    // ================= ROLE HELPERS =================
+    public function getRole() {
+        return $_SESSION['user_type'] ?? '';
+    }
 
     public function isCitizen() {
-        return ($_SESSION['user_type'] ?? '') === 'citizen';
+        return $this->getRole() === 'citizen';
     }
 
     public function isWardAdmin() {
-        return ($_SESSION['user_type'] ?? '') === 'ward_admin';
+        return $this->getRole() === 'ward_admin';
     }
 
     public function isMunicipalAdmin() {
-        return ($_SESSION['user_type'] ?? '') === 'municipal_admin';
+        return $this->getRole() === 'municipal_admin';
+    }
+
+    public function isSuperAdmin() {
+        return $this->getRole() === 'super_admin';
     }
 
     public function isAdmin() {
-        return ($_SESSION['user_type'] ?? '') === 'admin';
+        return in_array($_SESSION['user_type'] ?? '', [
+            'ward_admin',
+            'municipal_admin',
+            'super_admin'
+        ]);
     }
 
     public function getWard() {
         return $this->isWardAdmin() ? ($_SESSION['ward'] ?? null) : null;
     }
 
- 
-//      ACCESS GUARDS
-
+    // ================= ACCESS GUARD =================
     public function requireAuth($required_type = null) {
+
         if (!$this->isLoggedIn()) {
-            header("Location: login.php");
+            header("Location: /town_issues/login.php");
             exit;
         }
 
         if ($required_type === 'citizen' && !$this->isCitizen()) {
-            header("Location: unauthorized.php"); exit;
+            header("Location: /town_issues/unauthorized.php");
+            exit;
         }
 
         if ($required_type === 'ward_admin' && !$this->isWardAdmin()) {
-            header("Location: unauthorized.php"); exit;
+            header("Location: /town_issues/unauthorized.php");
+            exit;
         }
 
         if ($required_type === 'municipal_admin' && !$this->isMunicipalAdmin()) {
-            header("Location: unauthorized.php"); exit;
+            header("Location: /town_issues/unauthorized.php");
+            exit;
         }
 
-        if ($required_type === 'admin' && !$this->isAdmin()) {
-            header("Location: unauthorized.php"); exit;
+        if ($required_type === 'super_admin' && !$this->isSuperAdmin()) {
+            header("Location: /town_issues/unauthorized.php");
+            exit;
         }
 
-        if ($required_type === 'any_admin' &&
-            !$this->isAdmin() &&
-            !$this->isMunicipalAdmin() &&
-            !$this->isWardAdmin()) {
-            header("Location: unauthorized.php"); exit;
+        if ($required_type === 'any_admin' && !$this->isAdmin()) {
+            header("Location: /town_issues/unauthorized.php");
+            exit;
         }
     }
 }

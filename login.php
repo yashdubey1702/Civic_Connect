@@ -17,21 +17,33 @@ if (isset($_GET['registered']) && $_GET['registered'] == '1') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
     if (empty($email) || empty($password)) {
         $error = "Please enter both email and password.";
     } else {
+
         if ($auth->login($email, $password)) {
-            if ($_SESSION['user_type'] === 'admin') {
+
+            $role = $_SESSION['user_type'] ?? '';
+
+            if ($role === 'super_admin') {
                 header("Location: admin_dashboard.php");
-            } elseif (strpos($_SESSION['user_type'], '_admin') !== false) {
+
+            } elseif ($role === 'municipal_admin') {
                 header("Location: municipal_admin_dashboard.php");
+
+            } elseif ($role === 'ward_admin') {
+                header("Location: municipal_admin_dashboard.php");
+
             } else {
                 header("Location: user_dashboard.php");
             }
+
             exit;
+
         } else {
             $error = "Invalid email or password.";
         }
@@ -131,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="checkmark"></span>
                             Remember me
                         </label>
-                        <a href="#" class="forgot-password">Forgot password?</a>
+                        <a href="forget_password.php" class="forgot-password">Forgot password?</a>
                     </div>
 
                     <button type="submit" class="submit-btn">

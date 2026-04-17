@@ -1,3 +1,12 @@
+function esc(v) {
+    return (v == null ? '' : String(v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;'));
+}
+
 console.log('[AdminDashboardJS] Ward-based version loaded');
 
 // GLOBAL STATE
@@ -72,7 +81,7 @@ function initMap() {
         maxZoom: 18
     }).addTo(adminMap);
 
-// Load BMC boundary (visual reference)
+    // Load BMC boundary (visual reference)
     fetch('data/bmc_boundary.geojson')
         .then(res => res.json())
         .then(data => {
@@ -105,25 +114,40 @@ function loadMapReports() {
     if (category !== 'all') url += `category=${encodeURIComponent(category)}&`;
     if (ward !== 'all') url += `ward=${encodeURIComponent(ward)}`;
 
+
+    const tableEl = document.getElementById('reportsTable');
+
+    if (tableEl) {
+        tableEl.innerHTML = `
+                <div class="loading-state">
+                    <p>Loading reports...</p>
+                </div>
+            `;
+    }
+
     fetch(url)
         .then(res => res.json())
         .then(reports => {
+            if (!Array.isArray(reports)) {
+                throw new Error("Invalid map data");
+            }
             mapMarkers.forEach(m => adminMap.removeLayer(m));
             mapMarkers = [];
 
             reports.forEach(r => {
+                if (!r || !r.latitude || !r.longitude) return;
                 const icon = statusIcons[r.status] || statusIcons.Reported;
                 const marker = L.marker([r.latitude, r.longitude], { icon }).addTo(adminMap);
 
                 marker.bindPopup(`
                     <div style="min-width:200px">
-                        <h3 style="color:#0d47a1">${r.category}</h3>
+                        <h3 style="color:#0d47a1">${esc(r.category)}</h3>
                         <p><strong>Status:</strong>
                             <span style="color:${getStatusColor(r.status)}">${r.status}</span>
                         </p>
                         <p><strong>Ward:</strong> ${r.municipality?.toUpperCase()}</p>
                         <p><strong>Date:</strong> ${new Date(r.created_at).toLocaleDateString()}</p>
-                        ${r.description ? `<p><em>${r.description}</em></p>` : ''}
+                        ${r.description ? `<p><em>${esc(r.description)}</em></p>` : ''}
                     </div>
                 `);
 
@@ -136,7 +160,19 @@ function loadMapReports() {
                 );
             }
         })
-        .catch(err => console.error('Map load error:', err));
+        .catch(err => {
+            console.error("Load reports error:", err);
+
+            const tableEl = document.getElementById('reportsTable');
+            if (tableEl) {
+                tableEl.innerHTML = `
+                <div class="error-state">
+                    <p>Failed to load reports</p>
+                    <button onclick="loadReports(1)">Retry</button>
+                </div>
+            `;
+            }
+        });
 }
 
 
@@ -145,8 +181,8 @@ function loadMapReports() {
 function loadReports(page = 1) {
     currentPage = page;
 
-    const status = document.getElementById('statusFilter').value;
-    const category = document.getElementById('categoryFilter').value;
+    const status = document.getElementById('statusFilter')?.value || 'all';
+    const category = document.getElementById('categoryFilter').value || 'all';
     const ward = document.getElementById('municipalityFilter')?.value || 'all';
     const search = document.getElementById('searchInput')?.value.trim() || '';
 
@@ -159,6 +195,11 @@ function loadReports(page = 1) {
     fetch(url)
         .then(res => res.json())
         .then(data => {
+
+            if (!data || !data.reports || !data.pagination) {
+                throw new Error("Invalid API response");
+            }
+
             allReports = data.reports;
             totalRecords = data.pagination.total_records;
             totalPages = data.pagination.total_pages;
@@ -177,7 +218,7 @@ function loadReports(page = 1) {
 // RENDER TABLE
 
 function renderReportsTable(reports) {
-    if (!reports.length) {
+    if (!reports || !Array.isArray(reports) || !reports.length) {
         document.getElementById('reportsTable').innerHTML =
             `<div class="empty-state">No reports found</div>`;
         return;
@@ -205,9 +246,9 @@ function renderReportsTable(reports) {
             <tr>
                 <td>${r.id}</td>
                 <td>${r.category}</td>
-                <td>${r.description || '-'}</td>
+                <td>${esc(r.description || '-')}</td>
                 <td>${r.municipality?.toUpperCase()}</td>
-                <td>${r.email || 'Anonymous'}</td>
+                <td>${esc(r.email || 'Anonymous')}</td>
                 <td>
                     <span class="status-badge status-${r.status.toLowerCase().replace(' ', '-')}">
                         ${r.status}
@@ -216,8 +257,8 @@ function renderReportsTable(reports) {
                 <td>${new Date(r.created_at).toLocaleDateString()}</td>
                 <td>
                     <select onchange="updateStatus(${r.id}, this.value)">
-                        ${['Reported','Acknowledged','In Progress','Resolved']
-                            .map(s => `<option ${s===r.status?'selected':''}>${s}</option>`).join('')}
+                        ${['Reported', 'Acknowledged', 'In Progress', 'Resolved']
+                .map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}
                     </select>
                 </td>
             </tr>
@@ -234,16 +275,16 @@ function renderPagination() {
     const el = document.getElementById('pagination');
     if (!el) return;
 
-    let html = `<button ${currentPage===1?'disabled':''}
-                onclick="loadReports(${currentPage-1})">Prev</button>`;
+    let html = `<button ${currentPage === 1 ? 'disabled' : ''}
+                onclick="loadReports(${currentPage - 1})">Prev</button>`;
 
     for (let i = 1; i <= totalPages; i++) {
-        html += `<button class="${i===currentPage?'active':''}"
+        html += `<button class="${i === currentPage ? 'active' : ''}"
                 onclick="loadReports(${i})">${i}</button>`;
     }
 
-    html += `<button ${currentPage===totalPages?'disabled':''}
-                onclick="loadReports(${currentPage+1})">Next</button>`;
+    html += `<button ${currentPage === totalPages ? 'disabled' : ''}
+                onclick="loadReports(${currentPage + 1})">Next</button>`;
 
     el.innerHTML = html;
 }
@@ -273,17 +314,40 @@ function applyFilters() {
     loadMapReports();
 }
 
+// function updateStatus(id, status) {
+//     fetch('reports/update_status.php', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ id, status })
+//     })
+//     .then(res => res.json())
+//     .then(() => {
+//         loadReports(currentPage);
+//         loadMapReports();
+//     });
+// }
+
 function updateStatus(id, status) {
     fetch('reports/update_status.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status })
     })
-    .then(res => res.json())
-    .then(() => {
-        loadReports(currentPage);
-        loadMapReports();
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success) {
+                alert("Status updated successfully");
+
+                loadReports(currentPage);
+                loadMapReports();
+            } else {
+                alert("Failed to update status");
+            }
+        })
+        .catch(err => {
+            console.error("Update error:", err);
+            alert("Something went wrong while updating status");
+        });
 }
 
 
