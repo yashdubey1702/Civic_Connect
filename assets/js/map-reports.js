@@ -1,5 +1,115 @@
 const userMap = L.map('userMap').setView([20.2961, 85.8245], 12);
 
+window.searchLocation = async function () {
+    const query = document.getElementById("locationSearch").value.trim();
+
+    if (!query) {
+        showNotification("Please enter a location name.", "warning");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+        );
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            showNotification("Location not found.", "error");
+            return;
+        }
+
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+
+        // 🔴 Boundary check (IMPORTANT)
+        if (!isWithinBhubaneswar(lat, lon)) {
+            showNotification("Location is outside Bhubaneswar boundary.", "warning");
+            return;
+        }
+
+        // Move map
+        userMap.setView([lat, lon], 15);
+
+        // Remove old temp marker
+        if (tempMarker) {
+            userMap.removeLayer(tempMarker);
+        }
+
+        tempMarker = L.marker([lat, lon]).addTo(userMap)
+        .bindPopup("Searched Location")
+        .openPopup();
+
+        // Set selected location
+        clickedLatLng = { lat, lng: lon };
+
+        document.getElementById("lat").value = lat;
+        document.getElementById("lng").value = lon;
+
+        // Open modal
+        reportModal.style.display = "block";
+
+    } catch (error) {
+        console.error(error);
+        showNotification("Search failed.", "error");
+    }
+}
+
+
+window.getCurrentLocation = function () {
+
+    if (!navigator.geolocation) {
+        showNotification("Geolocation is not supported by your browser.", "error");
+        return;
+    }
+
+    showNotification("Fetching your location...", "success");
+
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            // 🔴 Boundary check (same as everywhere)
+            if (!isWithinBhubaneswar(lat, lng)) {
+                showNotification("You are outside Bhubaneswar boundary.", "warning");
+                return;
+            }
+
+            // Move map
+            userMap.setView([lat, lng], 15);
+
+            // Remove old temp marker
+            if (tempMarker) {
+                userMap.removeLayer(tempMarker);
+            }
+
+            tempMarker = L.marker([lat, lng]).addTo(userMap)
+            .bindPopup("You are here")
+            .openPopup();
+
+            // Set selected location
+            clickedLatLng = { lat, lng };
+                    
+            document.getElementById("lat").value = lat;
+            document.getElementById("lng").value = lng;
+                    
+            // Open modal
+            reportModal.style.display = "block";
+
+        },
+        function (error) {
+            console.error(error);
+            showNotification("Unable to retrieve your location.", "error");
+        },
+        {
+            enableHighAccuracy: true
+        }
+    );
+}
+
 // CartoDB tiles
 L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
@@ -11,6 +121,7 @@ L.tileLayer(
     }
 ).addTo(userMap);
 
+
 // Modal + State
 
 const reportModal = document.getElementById("reportModal");
@@ -19,6 +130,7 @@ const reportForm  = document.getElementById("reportForm");
 let clickedLatLng;
 let userMarkers = [];
 let bmcLayer;
+let tempMarker = null;
 
 //Load Bhubaneswar (BMC) Boundary
   
@@ -281,16 +393,16 @@ style.textContent = `
     }
     
     .notification.success {
-        background: var(--success);
+    background: #28a745;
     }
-    
+
     .notification.error {
-        background: var(--danger);
+        background: #dc3545;
     }
-    
+
     .notification.warning {
-        background: var(--warning);
-        color: var(--dark);
+        background: #ffc107;
+        color: #000;
     }
     
     .notification.fade-out {

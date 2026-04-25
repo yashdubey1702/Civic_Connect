@@ -165,14 +165,31 @@ $stmt->close();
                             <div class="legend-item">
                                 <span class="legend-color" style="background-color: #2e7d32;"></span>
                                 <span>Resolved</span>
+                    </div>
+                    </div>
+                        </div>
+                            <div class="map-actions">
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                     <!-- Search Box -->
+                                     <input 
+                                         type="text" 
+                                         id="locationSearch" 
+                                         placeholder="Search location..."
+                                         style="padding: 8px; width: 250px; border-radius: 6px; border: 1px solid #ccc;"
+                                     />
+                                     <!-- Search Button -->
+                                     <button onclick="searchLocation()" class="refresh-btn">
+                                         <i class="fas fa-search"></i>
+                                     </button>
+                                     <!-- Current Location Button -->
+                                     <button onclick="getCurrentLocation()" class="refresh-btn">
+                                         <i class="fas fa-location-arrow"></i>
+                                     </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="map-actions">
-                    </div>
-                </div>
             </div>
-        </div>
     </main>
 
     <!-- Report Modal -->
@@ -227,7 +244,7 @@ $stmt->close();
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-    <script src="assets/js/map-reports.js"></script>
+    <script src="./assets/js/map-reports.js"></script>
 </body>
 </html>
 <script>
