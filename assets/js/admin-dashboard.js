@@ -1,74 +1,105 @@
-function esc(v) {
-    return (v == null ? '' : String(v)
+console.log('[AdminDashboardJS] Loaded');
+
+function esc(value) {
+    return (value == null ? '' : String(value))
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;'));
+        .replace(/'/g, '&#39;');
 }
 
-console.log('[AdminDashboardJS] Ward-based version loaded');
-
-// GLOBAL STATE
-
-let adminMap;
+let adminMap = null;
+let bmcLayer = null;
 let mapMarkers = [];
-let bmcLayer;
-
-let allReports = [];
 let currentPage = 1;
 let perPage = 10;
 let totalPages = 1;
 let totalRecords = 0;
+let searchTimer = null;
 
-// STATUS ICONS
+const statusIcons = {};
+const statuses = ['Reported', 'Acknowledged', 'In Progress', 'Resolved'];
 
-const statusIcons = {
-    'Reported': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    }),
-    'Acknowledged': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    }),
-    'In Progress': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    }),
-    'Resolved': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    })
-};
+function createStatusIcons() {
+    if (typeof L === 'undefined') return;
 
-// MAP INITIALIZATION (Bhubaneswar)
+    const baseUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/';
+    const shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png';
+
+    Object.assign(statusIcons, {
+        Reported: L.icon({
+            iconUrl: `${baseUrl}marker-icon-2x-red.png`,
+            shadowUrl,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        Acknowledged: L.icon({
+            iconUrl: `${baseUrl}marker-icon-2x-orange.png`,
+            shadowUrl,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        'In Progress': L.icon({
+            iconUrl: `${baseUrl}marker-icon-2x-blue.png`,
+            shadowUrl,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        Resolved: L.icon({
+            iconUrl: `${baseUrl}marker-icon-2x-green.png`,
+            shadowUrl,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        })
+    });
+}
+
+function getStatusColor(status) {
+    return {
+        Reported: '#c62828',
+        Acknowledged: '#f57c00',
+        'In Progress': '#0277bd',
+        Resolved: '#2e7d32'
+    }[status] || '#212529';
+}
+
+function getFilters() {
+    return {
+        status: document.getElementById('statusFilter')?.value || 'all',
+        category: document.getElementById('categoryFilter')?.value || 'all',
+        ward: document.getElementById('municipalityFilter')?.value || 'all',
+        search: document.getElementById('searchInput')?.value.trim() || ''
+    };
+}
+
+function buildQuery(params) {
+    const query = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '' && value !== 'all') {
+            query.set(key, value);
+        }
+    });
+
+    return query.toString();
+}
 
 function initMap() {
-    if (adminMap && adminMap.remove) {
-        adminMap.remove();
-    }
-
     const container = document.getElementById('adminMap');
-    if (container && container._leaflet_id) {
-        container._leaflet_id = null;
-    }
+    if (!container || typeof L === 'undefined') return;
+
+    if (container._leaflet_id) return;
+
+    createStatusIcons();
 
     adminMap = L.map('adminMap', {
         center: [20.2961, 85.8245],
@@ -77,13 +108,12 @@ function initMap() {
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 18
     }).addTo(adminMap);
 
-    // Load BMC boundary (visual reference)
     fetch('data/bmc_boundary.geojson')
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
             bmcLayer = L.geoJSON(data, {
                 style: {
@@ -97,57 +127,89 @@ function initMap() {
             adminMap.fitBounds(bmcLayer.getBounds());
             loadMapReports();
         })
-        .catch(() => loadMapReports());
+        .catch(error => {
+            console.error('Boundary load failed:', error);
+            loadMapReports();
+        });
 
     setTimeout(() => adminMap.invalidateSize(), 150);
 }
 
-// LOAD MAP REPORTS (WARD BASED)
+function populateWardFilter() {
+    const select = document.getElementById('municipalityFilter');
+    if (!select) return Promise.resolve();
+
+    return fetch('data/Wards.geojson')
+        .then(response => response.json())
+        .then(data => {
+            const wards = (data.features || [])
+                .map(feature => feature.properties?.wardno)
+                .filter(Boolean)
+                .map(ward => String(ward).toUpperCase())
+                .filter((ward, index, list) => list.indexOf(ward) === index)
+                .sort((a, b) => {
+                    const aNum = parseInt(a.replace(/\D/g, ''), 10);
+                    const bNum = parseInt(b.replace(/\D/g, ''), 10);
+                    return aNum - bNum;
+                });
+
+            select.innerHTML = '<option value="all">All Wards</option>';
+            wards.forEach(ward => {
+                const option = document.createElement('option');
+                option.value = ward;
+                option.textContent = ward;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Ward list load failed:', error);
+        });
+}
+
+function clearMapMarkers() {
+    if (!adminMap) return;
+
+    mapMarkers.forEach(marker => {
+        if (adminMap.hasLayer(marker)) {
+            adminMap.removeLayer(marker);
+        }
+    });
+    mapMarkers = [];
+}
 
 function loadMapReports() {
-    const status = document.getElementById('statusFilter')?.value || 'all';
-    const category = document.getElementById('categoryFilter')?.value || 'all';
-    const ward = document.getElementById('municipalityFilter')?.value || 'all';
+    if (!adminMap) return;
 
-    let url = 'reports/get_map_reports.php?';
-    if (status !== 'all') url += `status=${encodeURIComponent(status)}&`;
-    if (category !== 'all') url += `category=${encodeURIComponent(category)}&`;
-    if (ward !== 'all') url += `ward=${encodeURIComponent(ward)}`;
+    const filters = getFilters();
+    const query = buildQuery({
+        status: filters.status,
+        category: filters.category,
+        ward: filters.ward
+    });
+    const url = query ? `reports/get_map_reports.php?${query}` : 'reports/get_map_reports.php';
 
-
-    const tableEl = document.getElementById('reportsTable');
-
-    if (tableEl) {
-        tableEl.innerHTML = `
-                <div class="loading-state">
-                    <p>Loading reports...</p>
-                </div>
-            `;
-    }
-
-    fetch(url)
-        .then(res => res.json())
+    fetch(url, { credentials: 'same-origin' })
+        .then(response => response.json())
         .then(reports => {
-            if (!Array.isArray(reports)) {
-                throw new Error("Invalid map data");
-            }
-            mapMarkers.forEach(m => adminMap.removeLayer(m));
-            mapMarkers = [];
+            if (!Array.isArray(reports)) throw new Error('Invalid map data');
 
-            reports.forEach(r => {
-                if (!r || !r.latitude || !r.longitude) return;
-                const icon = statusIcons[r.status] || statusIcons.Reported;
-                const marker = L.marker([r.latitude, r.longitude], { icon }).addTo(adminMap);
+            clearMapMarkers();
+
+            reports.forEach(report => {
+                if (!report || !report.latitude || !report.longitude) return;
+
+                const icon = statusIcons[report.status] || statusIcons.Reported;
+                const marker = L.marker([report.latitude, report.longitude], { icon }).addTo(adminMap);
 
                 marker.bindPopup(`
                     <div style="min-width:200px">
-                        <h3 style="color:#0d47a1">${esc(r.category)}</h3>
+                        <h3 style="color:#0d47a1">${esc(report.category)}</h3>
                         <p><strong>Status:</strong>
-                            <span style="color:${getStatusColor(r.status)}">${r.status}</span>
+                            <span style="color:${getStatusColor(report.status)}">${esc(report.status)}</span>
                         </p>
-                        <p><strong>Ward:</strong> ${r.municipality?.toUpperCase()}</p>
-                        <p><strong>Date:</strong> ${new Date(r.created_at).toLocaleDateString()}</p>
-                        ${r.description ? `<p><em>${esc(r.description)}</em></p>` : ''}
+                        <p><strong>Ward:</strong> ${esc(report.municipality || '-')}</p>
+                        <p><strong>Date:</strong> ${new Date(report.created_at).toLocaleDateString()}</p>
+                        ${report.description ? `<p><em>${esc(report.description)}</em></p>` : ''}
                     </div>
                 `);
 
@@ -155,76 +217,85 @@ function loadMapReports() {
             });
 
             if (mapMarkers.length) {
-                adminMap.fitBounds(
-                    L.featureGroup(mapMarkers).getBounds().pad(0.1)
-                );
+                adminMap.fitBounds(L.featureGroup(mapMarkers).getBounds().pad(0.1));
+            } else if (bmcLayer) {
+                adminMap.fitBounds(bmcLayer.getBounds());
             }
         })
-        .catch(err => {
-            console.error("Load reports error:", err);
-
-            const tableEl = document.getElementById('reportsTable');
-            if (tableEl) {
-                tableEl.innerHTML = `
-                <div class="error-state">
-                    <p>Failed to load reports</p>
-                    <button onclick="loadReports(1)">Retry</button>
-                </div>
-            `;
-            }
+        .catch(error => {
+            console.error('Map reports load error:', error);
         });
 }
-
-
-// REPORTS TABLE (WARD BASED)
 
 function loadReports(page = 1) {
     currentPage = page;
 
-    const status = document.getElementById('statusFilter')?.value || 'all';
-    const category = document.getElementById('categoryFilter').value || 'all';
-    const ward = document.getElementById('municipalityFilter')?.value || 'all';
-    const search = document.getElementById('searchInput')?.value.trim() || '';
+    const filters = getFilters();
+    const query = buildQuery({
+        page,
+        per_page: perPage,
+        status: filters.status,
+        category: filters.category,
+        ward: filters.ward,
+        search: filters.search
+    });
 
-    let url = `reports/get_reports.php?page=${page}&per_page=${perPage}`;
-    if (status !== 'all') url += `&status=${encodeURIComponent(status)}`;
-    if (category !== 'all') url += `&category=${encodeURIComponent(category)}`;
-    if (ward !== 'all') url += `&ward=${encodeURIComponent(ward)}`;
-    if (search) url += `&search=${encodeURIComponent(search)}`;
-
-    fetch(url)
-        .then(res => res.json())
+    fetch(`reports/get_reports.php?${query}`, { credentials: 'same-origin' })
+        .then(response => response.json())
         .then(data => {
-
-            if (!data || !data.reports || !data.pagination) {
-                throw new Error("Invalid API response");
+            if (!data || !Array.isArray(data.reports) || !data.pagination) {
+                throw new Error('Invalid API response');
             }
 
-            allReports = data.reports;
             totalRecords = data.pagination.total_records;
             totalPages = data.pagination.total_pages;
 
             renderReportsTable(data.reports);
             renderPagination();
-            updateStatistics(data.reports);
+            updateStatistics(data.status_counts || {});
         })
-        .catch(() => {
-            document.getElementById('reportsTable').innerHTML =
-                `<p class="error">Failed to load reports</p>`;
+        .catch(error => {
+            console.error('Reports load error:', error);
+            const table = document.getElementById('reportsTable');
+            if (table) table.innerHTML = '<p class="error">Failed to load reports</p>';
         });
 }
 
-
-// RENDER TABLE
-
 function renderReportsTable(reports) {
-    if (!reports || !Array.isArray(reports) || !reports.length) {
-        document.getElementById('reportsTable').innerHTML =
-            `<div class="empty-state">No reports found</div>`;
+    const table = document.getElementById('reportsTable');
+    if (!table) return;
+
+    if (!reports.length) {
+        table.innerHTML = '<div class="empty-state">No reports found</div>';
         return;
     }
 
-    let html = `
+    const rows = reports.map(report => `
+        <tr>
+            <td>${esc(report.id)}</td>
+            <td>${esc(report.category)}</td>
+            <td>${esc(report.description || '-')}</td>
+            <td>${esc(report.municipality || '-')}</td>
+            <td>${esc(report.email || 'Anonymous')}</td>
+            <td>
+                <span class="status-badge status-${String(report.status).toLowerCase().replace(/\s+/g, '-')}">
+                    ${esc(report.status)}
+                </span>
+            </td>
+            <td>${new Date(report.created_at).toLocaleDateString()}</td>
+            <td>
+                <select onchange="updateStatus(${Number(report.id)}, this.value)">
+                    ${statuses.map(status => `
+                        <option value="${esc(status)}" ${status === report.status ? 'selected' : ''}>
+                            ${esc(status)}
+                        </option>
+                    `).join('')}
+                </select>
+            </td>
+        </tr>
+    `).join('');
+
+    table.innerHTML = `
         <table class="reports-table">
             <thead>
                 <tr>
@@ -238,123 +309,90 @@ function renderReportsTable(reports) {
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody>${rows}</tbody>
+        </table>
     `;
-
-    reports.forEach(r => {
-        html += `
-            <tr>
-                <td>${r.id}</td>
-                <td>${r.category}</td>
-                <td>${esc(r.description || '-')}</td>
-                <td>${r.municipality?.toUpperCase()}</td>
-                <td>${esc(r.email || 'Anonymous')}</td>
-                <td>
-                    <span class="status-badge status-${r.status.toLowerCase().replace(' ', '-')}">
-                        ${r.status}
-                    </span>
-                </td>
-                <td>${new Date(r.created_at).toLocaleDateString()}</td>
-                <td>
-                    <select onchange="updateStatus(${r.id}, this.value)">
-                        ${['Reported', 'Acknowledged', 'In Progress', 'Resolved']
-                .map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}
-                    </select>
-                </td>
-            </tr>
-        `;
-    });
-
-    html += `</tbody></table>`;
-    document.getElementById('reportsTable').innerHTML = html;
 }
-
-// UTILITIES
 
 function renderPagination() {
     const el = document.getElementById('pagination');
     if (!el) return;
 
-    let html = `<button ${currentPage === 1 ? 'disabled' : ''}
-                onclick="loadReports(${currentPage - 1})">Prev</button>`;
+    let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="loadReports(${currentPage - 1})">Prev</button>`;
 
     for (let i = 1; i <= totalPages; i++) {
-        html += `<button class="${i === currentPage ? 'active' : ''}"
-                onclick="loadReports(${i})">${i}</button>`;
+        html += `<button class="${i === currentPage ? 'active' : ''}" onclick="loadReports(${i})">${i}</button>`;
     }
 
-    html += `<button ${currentPage === totalPages ? 'disabled' : ''}
-                onclick="loadReports(${currentPage + 1})">Next</button>`;
-
+    html += `<button ${currentPage >= totalPages ? 'disabled' : ''} onclick="loadReports(${currentPage + 1})">Next</button>`;
     el.innerHTML = html;
 }
 
-function updateStatistics(reports) {
-    document.getElementById('totalReports').textContent = totalRecords;
-    document.getElementById('reportedCount').textContent = reports.filter(r => r.status === 'Reported').length;
-    document.getElementById('acknowledgedCount').textContent = reports.filter(r => r.status === 'Acknowledged').length;
-    document.getElementById('inProgressCount').textContent = reports.filter(r => r.status === 'In Progress').length;
-    document.getElementById('resolvedCount').textContent = reports.filter(r => r.status === 'Resolved').length;
+function updateStatistics(counts) {
+    const values = {
+        totalReports: totalRecords,
+        reportedCount: counts.Reported || 0,
+        acknowledgedCount: counts.Acknowledged || 0,
+        inProgressCount: counts['In Progress'] || 0,
+        resolvedCount: counts.Resolved || 0
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    });
 }
-
-function getStatusColor(status) {
-    return {
-        'Reported': '#c62828',
-        'Acknowledged': '#f57c00',
-        'In Progress': '#0277bd',
-        'Resolved': '#2e7d32'
-    }[status] || '#212529';
-}
-
-
-// EVENTS
 
 function applyFilters() {
     loadReports(1);
     loadMapReports();
 }
 
-// function updateStatus(id, status) {
-//     fetch('reports/update_status.php', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ id, status })
-//     })
-//     .then(res => res.json())
-//     .then(() => {
-//         loadReports(currentPage);
-//         loadMapReports();
-//     });
-// }
+function handleSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        loadReports(1);
+    }, 250);
+}
+
+function refreshAll() {
+    loadReports(currentPage);
+    loadMapReports();
+}
 
 function updateStatus(id, status) {
     fetch('reports/update_status.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ id, status })
     })
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
             if (data && data.success) {
-                alert("Status updated successfully");
-
                 loadReports(currentPage);
                 loadMapReports();
             } else {
-                alert("Failed to update status");
+                alert(data.message || 'Failed to update status');
             }
         })
-        .catch(err => {
-            console.error("Update error:", err);
-            alert("Something went wrong while updating status");
+        .catch(error => {
+            console.error('Update error:', error);
+            alert('Something went wrong while updating status');
         });
 }
 
-
-// INIT
+window.applyFilters = applyFilters;
+window.handleSearch = handleSearch;
+window.refreshAll = refreshAll;
+window.loadReports = loadReports;
+window.updateStatus = updateStatus;
 
 document.addEventListener('DOMContentLoaded', () => {
-    initMap();
-    loadReports(1);
+    populateWardFilter().finally(() => {
+        initMap();
+        loadReports(1);
+    });
+
     window.addEventListener('resize', () => adminMap?.invalidateSize());
 });

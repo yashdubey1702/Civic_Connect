@@ -11,17 +11,17 @@ $auth = new Auth($db);
 $auth->requireAuth('citizen');
 
 // Get user's reports
-$user_id = $_SESSION['user_id'];
+$user_id = (int)$_SESSION['user_id'];
 $reports = [];
 $error = '';
 
 $query = "SELECT id, latitude, longitude, category, description, status, created_at, image_filename
           FROM reports
-          WHERE email = ?
+          WHERE user_id = ?
           ORDER BY created_at DESC";
 
 $stmt = $db->prepare($query);
-$stmt->bind_param("s", $_SESSION['email']);
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 
 $result = $stmt->get_result();
@@ -36,7 +36,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Reports Map - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -165,31 +165,31 @@ $stmt->close();
                             <div class="legend-item">
                                 <span class="legend-color" style="background-color: #2e7d32;"></span>
                                 <span>Resolved</span>
-                    </div>
-                    </div>
-                        </div>
-                            <div class="map-actions">
-                                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                     <!-- Search Box -->
-                                     <input 
-                                         type="text" 
-                                         id="locationSearch" 
-                                         placeholder="Search location..."
-                                         style="padding: 8px; width: 250px; border-radius: 6px; border: 1px solid #ccc;"
-                                     />
-                                     <!-- Search Button -->
-                                     <button onclick="searchLocation()" class="refresh-btn">
-                                         <i class="fas fa-search"></i>
-                                     </button>
-                                     <!-- Current Location Button -->
-                                     <button onclick="getCurrentLocation()" class="refresh-btn">
-                                         <i class="fas fa-location-arrow"></i>
-                                     </button>
-                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="map-actions">
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <!-- Search Box -->
+                            <input
+                                type="text"
+                                id="locationSearch"
+                                placeholder="Search location..."
+                                style="padding: 8px; width: 250px; border-radius: 6px; border: 1px solid #ccc;"
+                            />
+                            <!-- Search Button -->
+                            <button onclick="searchLocation()" class="refresh-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <!-- Current Location Button -->
+                            <button onclick="getCurrentLocation()" class="refresh-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
     </main>
 
     <!-- Report Modal -->
@@ -245,37 +245,37 @@ $stmt->close();
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
     <script src="./assets/js/map-reports.js"></script>
+    <script>
+        function openModal() {
+            const modal = document.getElementById('reportModal');
+            if (!modal) return;
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // prevent background scroll
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('reportModal');
+            if (!modal) return;
+
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // restore scroll
+        }
+
+        /* Close modal when clicking outside */
+        window.addEventListener('click', function (e) {
+            const modal = document.getElementById('reportModal');
+            if (modal && e.target === modal) {
+                closeModal();
+            }
+        });
+
+        /* Close modal on ESC key */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
-<script>
-function openModal() {
-    const modal = document.getElementById('reportModal');
-    if (!modal) return;
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // prevent background scroll
-}
-
-function closeModal() {
-    const modal = document.getElementById('reportModal');
-    if (!modal) return;
-
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // restore scroll
-}
-
-/* Close modal when clicking outside */
-window.addEventListener('click', function (e) {
-    const modal = document.getElementById('reportModal');
-    if (modal && e.target === modal) {
-        closeModal();
-    }
-});
-
-/* Close modal on ESC key */
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
-</script>

@@ -22,13 +22,14 @@ $description = trim($_POST['description'] ?? '');
 
 /* 🔒 EMAIL MUST COME FROM SESSION */
 $email = $_SESSION['email'] ?? null;
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 
 $imageFilename = null;
 
 /* =========================
    AUTH VALIDATION
    ========================= */
-if ($email === null) {
+if ($email === null || $userId === null) {
     echo json_encode([
         "success" => false,
         "message" => "User not authenticated."
@@ -129,13 +130,14 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
    ========================= */
 $query = "
     INSERT INTO reports
-        (latitude, longitude, category, description, email, image_filename, municipality)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+        (user_id, latitude, longitude, category, description, email, image_filename, municipality)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $db->prepare($query);
 $stmt->bind_param(
-    "ddsssss",
+    "iddsssss",
+    $userId,
     $lat,
     $lng,
     $category,

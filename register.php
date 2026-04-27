@@ -9,13 +9,17 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
-    $full_name = trim($_POST['full_name']);
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $confirm_password = trim($_POST['confirm_password'] ?? '');
+    $full_name = trim($_POST['full_name'] ?? '');
 
     // Validation
-    if ($password !== $confirm_password) {
+    if ($full_name === '' || $email === '' || $password === '' || $confirm_password === '') {
+        $error = "All fields are required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters.";
@@ -60,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -73,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-illustration">
             <div class="illustration-content">
                 <div class="gov-logo-large">
-                    <div class="gov-logo"> <img src="./assets/images/BPR.png" alt="Government Logo"class="gov-logo-image"/> </div>
+                    <div class="gov-logo"> <img src="./assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/> </div>
                 </div>
                 <h2>Join Our Community</h2>
                 <p>Help make Bhubaneswar a better place for everyone</p>
@@ -198,67 +202,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Password strength indicator
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
-            const strengthIndicator = document.getElementById('password-strength');
-            
-            if (!strengthIndicator) {
-                const strengthDiv = document.createElement('div');
-                strengthDiv.id = 'password-strength';
-                strengthDiv.className = 'password-strength';
-                this.parentNode.parentNode.appendChild(strengthDiv);
-            }
-            
-            const strengthText = document.getElementById('password-strength-text') || document.createElement('div');
-            strengthText.id = 'password-strength-text';
+            const container = this.parentNode.parentNode;
+            let strengthIndicator = document.getElementById('password-strength');
+            let strengthText = document.getElementById('password-strength-text');
             
             let strength = 0;
             let message = '';
             let strengthClass = '';
             
-            if (password.length > 0) {
-                if (password.length < 6) {
-                    message = 'Too short';
-                    strengthClass = 'weak';
-                } else {
-                    // Check for character variety
-                    if (/[a-z]/.test(password)) strength++;
-                    if (/[A-Z]/.test(password)) strength++;
-                    if (/[0-9]/.test(password)) strength++;
-                    if (/[^a-zA-Z0-9]/.test(password)) strength++;
-                    
-                    if (password.length > 10) strength++;
-                    
-                    switch(strength) {
-                        case 1:
-                        case 2:
-                            message = 'Weak';
-                            strengthClass = 'weak';
-                            break;
-                        case 3:
-                            message = 'Medium';
-                            strengthClass = 'medium';
-                            break;
-                        case 4:
-                        case 5:
-                            message = 'Strong';
-                            strengthClass = 'strong';
-                            break;
-                    }
-                }
-                
-                strengthText.innerHTML = `<span class="strength-${strengthClass}">${message}</span>`;
-                strengthText.className = `strength-text ${strengthClass}`;
-                
-                if (!document.getElementById('password-strength-text')) {
-                    this.parentNode.parentNode.appendChild(strengthText);
-                }
-            } else {
-                if (strengthText.parentNode) {
+            if (password.length === 0) {
+                if (strengthText && strengthText.parentNode) {
                     strengthText.parentNode.removeChild(strengthText);
                 }
-                if (strengthIndicator) {
+                if (strengthIndicator && strengthIndicator.parentNode) {
                     strengthIndicator.parentNode.removeChild(strengthIndicator);
                 }
+                return;
             }
+
+            if (!strengthIndicator) {
+                strengthIndicator = document.createElement('div');
+                strengthIndicator.id = 'password-strength';
+                strengthIndicator.className = 'password-strength';
+                container.appendChild(strengthIndicator);
+            }
+
+            if (!strengthText) {
+                strengthText = document.createElement('div');
+                strengthText.id = 'password-strength-text';
+                container.appendChild(strengthText);
+            }
+
+            if (password.length < 6) {
+                message = 'Too short';
+                strengthClass = 'weak';
+            } else {
+                // Check for character variety
+                if (/[a-z]/.test(password)) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+                
+                if (password.length > 10) strength++;
+                
+                switch(strength) {
+                    case 1:
+                    case 2:
+                        message = 'Weak';
+                        strengthClass = 'weak';
+                        break;
+                    case 3:
+                        message = 'Medium';
+                        strengthClass = 'medium';
+                        break;
+                    case 4:
+                    case 5:
+                        message = 'Strong';
+                        strengthClass = 'strong';
+                        break;
+                }
+            }
+            
+            strengthText.innerHTML = `<span class="strength-${strengthClass}">${message}</span>`;
+            strengthText.className = `strength-text ${strengthClass}`;
         });
     </script>
 </body>

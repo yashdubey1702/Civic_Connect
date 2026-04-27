@@ -1,10 +1,15 @@
 <?php
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit('Not found');
+}
+
 require_once 'config/database.php';
 require_once 'config/BhubaneswarDetector.php';
 
 $database = new Database();
 $db = $database->getConnection(); // mysqli
-$wardDetector = new BhubaneswarDetector();
+$wardDetector = new BhubaneswarWardDetector();
 
 echo "<h2>Bhubaneswar Ward Detection Debug</h2>";
 
@@ -46,7 +51,7 @@ if (empty($wards)) {
         $lat = $point[1];
 
         $detectedWard = $wardDetector->detectWard($lat, $lng);
-        $isCorrect = ($detectedWard === $key);
+        $isCorrect = strtolower((string)$detectedWard) === strtolower((string)$key);
 
         echo "<tr>";
         echo "<td><strong>{$ward['ward_no']}</strong></td>";

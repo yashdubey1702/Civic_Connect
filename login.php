@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-illustration">
             <div class="illustration-content">
                 <div class="gov-logo">
-                    <img src="assets/images/BPR.png" alt="Government Logo"class="gov-logo-image"/>
+                    <img src="assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/>
                 </div>
                 <h2>Municipal Issue Reporting System</h2>
                 <p>Report and track community issues in Bhubaneswar</p>

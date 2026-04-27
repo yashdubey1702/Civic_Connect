@@ -3,7 +3,7 @@ session_start();
 require_once 'config/database.php';
 
 if (!isset($_SESSION['otp_verified']) || !isset($_SESSION['reset_email'])) {
-    header("Location: forgot_password.php");
+    header("Location: forget_password.php");
     exit;
 }
 
@@ -65,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CivicConnect – Reset Password</title>
 
-  <link href="../assets/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/verify_account.css">
   <link href="./assets/bootstrap.min.css" rel="stylesheet">

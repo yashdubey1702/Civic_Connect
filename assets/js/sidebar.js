@@ -1,6 +1,10 @@
 // assets/js/sidebar.js
 
 function initMobileSidebar() {
+    if (document.body.dataset.mobileSidebarInitialized === 'true') {
+        return;
+    }
+
     const hamburgerBtn = document.querySelector('.hamburger-btn');
     const sidebar = document.querySelector('.user-sidebar.sidebar');
     const mainContent = document.querySelector('.user-main');
@@ -14,6 +18,8 @@ function initMobileSidebar() {
     }
     
     if (hamburgerBtn && sidebar) {
+        document.body.dataset.mobileSidebarInitialized = 'true';
+
         // Toggle sidebar function
         function toggleSidebar() {
             sidebar.classList.toggle('active');
@@ -63,4 +69,3 @@ function initMobileSidebar() {
 
 // Initialize on all pages
 document.addEventListener('DOMContentLoaded', initMobileSidebar);
-window.addEventListener('load', initMobileSidebar);

@@ -16,17 +16,36 @@ $full_name = $_SESSION['full_name'];
 $user_type = $_SESSION['user_type'];
 $ward      = $auth->getWard(); 
 
+function formatWardLabel($ward) {
+    $ward = trim((string)$ward);
+
+    if ($ward === '') {
+        return 'Unassigned';
+    }
+
+    if (preg_match('/^w(\d+)$/i', $ward, $matches)) {
+        return 'W' . $matches[1];
+    }
+
+    if (preg_match('/^[A-Za-z0-9 _-]{1,30}$/', $ward)) {
+        return $ward;
+    }
+
+    return 'Unknown';
+}
+
 // Human-readable ward name
-$wardLabel = strtoupper($ward); 
+$wardLabel = formatWardLabel($ward);
+$safeWardLabel = htmlspecialchars($wardLabel, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ward <?= $wardLabel ?> Admin – CivicConnect Bhubaneswar</title>
+    <title>Ward <?= $safeWardLabel ?> Admin – CivicConnect Bhubaneswar</title>
 
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -48,13 +67,13 @@ $wardLabel = strtoupper($ward);
             </div>
             <div class="gov-titles">
                 <h1>CivicConnect – Bhubaneswar</h1>
-                <p class="tagline">Bhubaneswar Municipal Corporation • Ward <?= $wardLabel ?></p>
+                <p class="tagline">Bhubaneswar Municipal Corporation • Ward <?= $safeWardLabel ?></p>
             </div>
         </div>
 
         <div class="dashboard-controls">
             <span class="admin-welcome">
-                Welcome, <?= htmlspecialchars($full_name) ?> (Ward <?= $wardLabel ?> Admin)
+                Welcome, <?= htmlspecialchars($full_name, ENT_QUOTES, 'UTF-8') ?> (Ward <?= $safeWardLabel ?> Admin)
             </span>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
@@ -65,9 +84,9 @@ $wardLabel = strtoupper($ward);
 <div class="dashboard-container">
 
     <div class="dashboard-header">
-        <h1 class="dashboard-title">Ward <?= $wardLabel ?> – Reports Management</h1>
+        <h1 class="dashboard-title">Ward <?= $safeWardLabel ?> – Reports Management</h1>
         <p class="dashboard-subtitle">
-            Manage civic issues reported within Ward <?= $wardLabel ?>, Bhubaneswar
+            Manage civic issues reported within Ward <?= $safeWardLabel ?>, Bhubaneswar
         </p>
     </div>
 
@@ -133,7 +152,7 @@ $wardLabel = strtoupper($ward);
 
     <!-- MAP -->
     <div class="map-section">
-        <h2>Ward <?= $wardLabel ?> Map View</h2>
+        <h2>Ward <?= $safeWardLabel ?> Map View</h2>
         <p class="section-subtitle">
             View all reported civic issues in this ward
         </p>

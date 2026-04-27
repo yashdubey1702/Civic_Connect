@@ -9,6 +9,7 @@ $auth = new Auth($db);
 
 // Require citizen authentication
 $auth->requireAuth('citizen');
+$user_id = (int)$_SESSION['user_id'];
 
 // Initialize variables
 $error = '';
@@ -18,7 +19,7 @@ $user_details = [];
 // Get user details for display
 $query = "SELECT full_name, email, created_at, user_type FROM users WHERE id = ?";
 $stmt = $db->prepare($query);
-$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user_details = $result->fetch_assoc();
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get current password hash
         $query = "SELECT password_hash FROM users WHERE id = ?";
         $stmt = $db->prepare($query);
-        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
@@ -55,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $updateQuery = "UPDATE users SET password_hash = ? WHERE id = ?";
             $updateStmt = $db->prepare($updateQuery);
-            $updateStmt->bind_param("si", $hashedPassword, $_SESSION['user_id']);
+            $updateStmt->bind_param("si", $hashedPassword, $user_id);
 
             if ($updateStmt->execute()) {
                 $success = "Password changed successfully!";
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Change Password - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

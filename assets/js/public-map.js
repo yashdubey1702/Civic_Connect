@@ -1,321 +1,298 @@
-console.log("Map JS loaded");
+console.log('[PublicMapJS] Loaded (Bhubaneswar)');
 
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM ready");
+(function () {
+    let map = null;
+    let bmcLayer = null;
+    let allMarkers = [];
+    let modal = null;
+    let reportForm = null;
+    let loginPrompt = null;
 
-    const mapContainer = document.getElementById('map');
-
-    if (!mapContainer) {
-        console.error("❌ #map container not found");
-        return;
+    function escapeHtml(value) {
+        return (value == null ? '' : String(value))
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
-    //Prevent Leaflet double-initialization
-    if (mapContainer._leaflet_id) {
-        mapContainer._leaflet_id = null;
+    function getStatusColor(status) {
+        const colors = {
+            Reported: '#c62828',
+            Acknowledged: '#f57c00',
+            'In Progress': '#0277bd',
+            Resolved: '#2e7d32'
+        };
+
+        return colors[status] || '#c62828';
     }
 
-    //Initialize map (Bhubaneswar)
-    const map = L.map('map').setView([20.2961, 85.8245], 12);
+    function createStatusIcons() {
+        if (typeof L === 'undefined') return {};
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-
-
-// Status icons for markers
-const statusIcons = {
-    'Reported': L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="width: 16px; height: 16px; background-color: #c62828; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-    }),
-    'Acknowledged': L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="width: 16px; height: 16px; background-color: #f57c00; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-    }),
-    'In Progress': L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="width: 16px; height: 16px; background-color: #0277bd; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-    }),
-    'Resolved': L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="width: 16px; height: 16px; background-color: #2e7d32; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-    })
-};
-
-// Get status color for styling
-function getStatusColor(status) {
-    const colors = {
-        'Reported': '#c62828',
-        'Acknowledged': '#f57c00',
-        'In Progress': '#0277bd',
-        'Resolved': '#2e7d32'
-    };
-    return colors[status] || '#c62828';
-}
-
-// Get modal elements
-const modal = document.getElementById("reportModal");
-const span = document.getElementsByClassName("close")[0];
-const form = document.getElementById("reportForm");
-const loginPrompt = document.getElementById("loginPrompt");
-
-// Initially hide both forms
-loginPrompt.style.display = 'block';
-form.style.display = 'none';
-
-
-// Close modal function
-function closeModal() {
-    modal.style.display = "none";
-    form.reset();
-}
-
-// Close modal when clicking on X
-span.onclick = closeModal;
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target == modal) {
-        closeModal();
+        return {
+            Reported: L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="width:16px;height:16px;background-color:#c62828;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            }),
+            Acknowledged: L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="width:16px;height:16px;background-color:#f57c00;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            }),
+            'In Progress': L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="width:16px;height:16px;background-color:#0277bd;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            }),
+            Resolved: L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="width:16px;height:16px;background-color:#2e7d32;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            })
+        };
     }
-}
 
-   // Load BMC Boundary
-    loadBhubaneswarBoundary(map)
-        .then(layer => {
-            if (layer) {
-                console.log("✅ BMC boundary loaded");
-            } else {
-                console.warn("⚠️ BMC boundary NOT loaded — fallback active");
+    const statusIcons = {};
+
+    function selectedCheckboxValue(name) {
+        const checked = document.querySelector(`input[name="${name}"]:checked`);
+        return checked ? checked.value : null;
+    }
+
+    function normalizeReportsResponse(data) {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.reports)) return data.reports;
+        return [];
+    }
+
+    function updateStats(reports) {
+        const totalReports = document.getElementById('totalReports');
+        const resolvedReports = document.getElementById('resolvedReports');
+        const activeUsers = document.getElementById('activeUsers');
+
+        if (totalReports) totalReports.textContent = reports.length;
+        if (resolvedReports) {
+            resolvedReports.textContent = reports.filter(report => report.status === 'Resolved').length;
+        }
+        if (activeUsers) {
+            const users = new Set(
+                reports
+                    .map(report => (report.email || '').trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            activeUsers.textContent = users.size;
+        }
+    }
+
+    function clearMarkers() {
+        if (!map) return;
+
+        allMarkers.forEach(marker => {
+            if (map.hasLayer(marker)) {
+                map.removeLayer(marker);
             }
-        })
-        .catch(err => {
-            console.error("❌ Boundary load error:", err);
+        });
+        allMarkers = [];
+    }
+
+    function renderReports(reports) {
+        clearMarkers();
+        updateStats(reports);
+
+        reports.forEach(report => {
+            if (!report || !report.latitude || !report.longitude) return;
+
+            const icon = statusIcons[report.status] || statusIcons.Reported;
+            const marker = L.marker([report.latitude, report.longitude], { icon }).addTo(map);
+
+            marker.bindPopup(`
+                <div style="min-width:200px;">
+                    <h3 style="margin:0 0 10px 0;color:#0d47a1;border-bottom:2px solid #f0f0f0;padding-bottom:5px;">
+                        ${escapeHtml(report.category)}
+                    </h3>
+                    <p style="margin:5px 0;">
+                        <strong>Status:</strong>
+                        <span style="color:${getStatusColor(report.status)};font-weight:bold;">
+                            ${escapeHtml(report.status)}
+                        </span>
+                    </p>
+                    <p style="margin:5px 0;">
+                        <strong>Reported:</strong>
+                        ${new Date(report.created_at).toLocaleDateString()}
+                    </p>
+                    ${report.description ? `<p style="margin:10px 0 0 0;padding-top:10px;border-top:1px solid #f0f0f0;"><em>${escapeHtml(report.description)}</em></p>` : ''}
+                </div>
+            `);
+
+            allMarkers.push(marker);
+        });
+    }
+
+    function loadExistingReports() {
+        if (!map) return;
+
+        const params = new URLSearchParams();
+        const category = selectedCheckboxValue('category');
+        const status = selectedCheckboxValue('status');
+
+        if (category && category !== 'all') params.set('category', category);
+        if (status && status !== 'all') params.set('status', status);
+
+        const query = params.toString();
+        const url = query ? `reports/get_map_reports.php?${query}` : 'reports/get_map_reports.php';
+
+        fetch(url, { credentials: 'same-origin' })
+            .then(response => response.json())
+            .then(data => renderReports(normalizeReportsResponse(data)))
+            .catch(error => {
+                console.error('Error loading reports:', error);
+            });
+    }
+
+    function showMapHelp() {
+        alert(
+            'Community Issues Map Help:\n\n' +
+            '- Click inside Bhubaneswar city to report an issue.\n' +
+            '- Use filters to view reports by category or status.\n' +
+            '- Click markers to see report details.\n' +
+            '- Login is required before submitting a report.'
+        );
+    }
+
+    function showLoginPrompt(lat, lng) {
+        const latInput = document.getElementById('lat');
+        const lngInput = document.getElementById('lng');
+
+        if (latInput) latInput.value = lat;
+        if (lngInput) lngInput.value = lng;
+        if (loginPrompt) loginPrompt.style.display = 'block';
+        if (reportForm) reportForm.style.display = 'none';
+        if (modal) modal.style.display = 'block';
+    }
+
+    function isInsideBoundary(lat, lng) {
+        if (!bmcLayer || typeof isWithinBhubaneswar !== 'function') {
+            return false;
+        }
+
+        return isWithinBhubaneswar(lat, lng, bmcLayer);
+    }
+
+    function closeModal() {
+        if (modal) modal.style.display = 'none';
+        if (reportForm) reportForm.reset();
+    }
+
+    function handleCheckboxSelection(clickedCheckbox, groupName) {
+        if (clickedCheckbox.checked) {
+            document.querySelectorAll(`input[name="${groupName}"]`).forEach(checkbox => {
+                if (checkbox !== clickedCheckbox) {
+                    checkbox.checked = false;
+                }
+            });
+        } else {
+            const checked = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+            if (checked.length === 0) {
+                const allOption = document.querySelector(`input[name="${groupName}"][value="all"]`);
+                if (allOption) allOption.checked = true;
+            }
+        }
+
+        loadExistingReports();
+    }
+
+    function clearFilters() {
+        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            checkbox.checked = checkbox.value === 'all';
+        });
+        document.querySelectorAll('input[name="status"]').forEach(checkbox => {
+            checkbox.checked = checkbox.value === 'all';
         });
 
-    //Fix blank-map resize bug
+        loadExistingReports();
+    }
 
-    setTimeout(() => {
-        map.invalidateSize(true);
-    }, 150);
+    function initPublicMap() {
+        const mapContainer = document.getElementById('map');
 
-    console.log("Map initialized");
-});
-
-// Show map help
-function showMapHelp() {
-    alert("Community Issues Map Help:\n\n• Click anywhere on the map to report a new issue\n• Use the filters to view specific types of reports\n• Click on markers to see report details\n• Different colors represent different statuses\n\nYou need to be logged in to submit reports.");
-}
-
-
- userMap.on('click', function (e) {
-        if (!isWithinBhubaneswar(e.latlng.lat, e.latlng.lng, bmcLayer)) {
-            showNotification(
-                'Please select a location within Bhubaneswar city.',
-                'warning'
-            );
+        if (!mapContainer || typeof L === 'undefined') {
+            console.error('#map container or Leaflet was not found');
             return;
         }
 
-        document.getElementById('lat').value = e.latlng.lat;
-        document.getElementById('lng').value = e.latlng.lng;
+        if (mapContainer._leaflet_id) return;
 
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn') || false;
-    
-    if (isLoggedIn) {
-        // User is logged in - show report form
-        loginPrompt.style.display = 'none';
-        form.style.display = 'block';
-    } else {
-        // User is not logged in - show login prompt
-        loginPrompt.style.display = 'block';
-        form.style.display = 'none';
-    }
-    
-    modal.style.display = "block";
-    });
+        Object.assign(statusIcons, createStatusIcons());
 
+        map = L.map('map').setView([20.2961, 85.8245], 12);
+        modal = document.getElementById('reportModal');
+        reportForm = document.getElementById('reportForm');
+        loginPrompt = document.getElementById('loginPrompt');
 
-// Form submission
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
 
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const lat = parseFloat(document.getElementById("lat").value);
-    const lng = parseFloat(document.getElementById("lng").value);
-
-    if (!isWithinBhubaneswar(lat, lng, bmcLayer)) {
-        alert("❌ Reports can only be submitted from within Biliran Province.");
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('lat', lat);
-    formData.append('lng', lng);
-    formData.append('category', document.getElementById("category").value);
-    formData.append('description', document.getElementById("description").value);
-    formData.append('email', document.getElementById("email").value);
-    
-    const imageInput = document.getElementById("image");
-    if (imageInput.files[0]) {
-        formData.append('image', imageInput.files[0]);
-    }
-
-    fetch('reports/submit_report.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("✅ Report submitted successfully!");
-            closeModal();
-            loadExistingReports();
-        } else {
-            alert("❌ Error: " + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert("❌ An error occurred while submitting the report.");
-    });
-});
-
-// Load reports
-
-function loadExistingReports() {
-    const selectedCategory = getSingleSelectedCheckbox('category');
-    const selectedStatus = getSingleSelectedCheckbox('status');
-    let url = 'reports/get_map_reports.php?';
-    
-    // Handle category - only if not "all"
-    if (selectedCategory && selectedCategory !== 'all') {
-        url += 'category=' + encodeURIComponent(selectedCategory);
-    }
-    
-    // Handle status - only if not "all"
-    if (selectedStatus && selectedStatus !== 'all') {
-        if (url.includes('?')) {
-            url += '&status=' + encodeURIComponent(selectedStatus);
-        } else {
-            url += 'status=' + encodeURIComponent(selectedStatus);
-        }
-    }
-
-    // If no specific filters are selected, show ALL reports
-    if (url === 'reports/get_map_reports.php?') {
-        url = 'reports/get_map_reports.php';
-    }
-
-    fetch(url)
-        .then(response => response.json())
-        .then(reports => {
-            allMarkers.forEach(marker => map.removeLayer(marker));
-            allMarkers = [];
-            
-            // Update stats
-            document.getElementById('totalReports').textContent = reports.length;
-            document.getElementById('resolvedReports').textContent = reports.filter(r => r.status === 'Resolved').length;
-            
-            reports.forEach(report => {
-                const icon = statusIcons[report.status] || statusIcons['Reported'];
-                let marker = L.marker([report.latitude, report.longitude], { icon }).addTo(map);
-                marker.reportData = report;
-                
-                let popupContent = `
-                    <div style="min-width: 200px;">
-                        <h3 style="margin: 0 0 10px 0; color: #0d47a1; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px;">
-                            ${report.category}
-                        </h3>
-                        <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: ${getStatusColor(report.status)}; font-weight: bold;">${report.status}</span></p>
-                        <p style="margin: 5px 0;"><strong>Reported:</strong> ${new Date(report.created_at).toLocaleDateString()}</p>
-                `;
-                
-                if (report.description) {
-                    popupContent += `<p style="margin: 10px 0 0 0; padding-top: 10px; border-top: 1px solid #f0f0f0;"><em>${report.description}</em></p>`;
-                }
-                
-                popupContent += `</div>`;
-                marker.bindPopup(popupContent);
-                allMarkers.push(marker);
+        if (loginPrompt) loginPrompt.style.display = 'block';
+        if (reportForm) {
+            reportForm.style.display = 'none';
+            reportForm.addEventListener('submit', event => {
+                event.preventDefault();
+                window.location.href = 'login.php';
             });
-        })
-        .catch(error => console.error('Error loading reports:', error));
-}
+        }
 
-// Helper function to get single selected checkbox value
-function getSingleSelectedCheckbox(name) {
-    const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
-    if (checkboxes.length === 0) return null;
-    return checkboxes[0].value;
-}
+        const closeButton = modal ? modal.querySelector('.close') : null;
+        if (closeButton) closeButton.addEventListener('click', closeModal);
 
-// Function to handle checkbox clicks
-function handleCheckboxSelection(clickedCheckbox, groupName) {
-    if (clickedCheckbox.checked) {
-        // Uncheck all other checkboxes in the same group
-        document.querySelectorAll(`input[name="${groupName}"]`).forEach(checkbox => {
-            if (checkbox !== clickedCheckbox) {
-                checkbox.checked = false;
+        window.addEventListener('click', event => {
+            if (event.target === modal) {
+                closeModal();
             }
         });
-    } else {
-        // If unchecking the last checkbox, re-check "All"
-        const checkedCheckboxes = document.querySelectorAll(`input[name="${groupName}"]:checked`);
-        if (checkedCheckboxes.length === 0) {
-            document.querySelector(`input[name="${groupName}"][value="all"]`).checked = true;
+
+        if (typeof loadBhubaneswarBoundary === 'function') {
+            loadBhubaneswarBoundary(map).then(layer => {
+                bmcLayer = layer;
+                loadExistingReports();
+            });
+        } else {
+            loadExistingReports();
         }
+
+        map.on('click', event => {
+            const { lat, lng } = event.latlng;
+
+            if (!isInsideBoundary(lat, lng)) {
+                alert('Reports can only be submitted from within Bhubaneswar city.');
+                return;
+            }
+
+            showLoginPrompt(lat, lng);
+        });
+
+        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            checkbox.addEventListener('click', () => handleCheckboxSelection(checkbox, 'category'));
+        });
+        document.querySelectorAll('input[name="status"]').forEach(checkbox => {
+            checkbox.addEventListener('click', () => handleCheckboxSelection(checkbox, 'status'));
+        });
+
+        setTimeout(() => map.invalidateSize(true), 150);
     }
-    applyFilters();
-}
 
-// Clear all filters
-function clearFilters() {
-    // Check "All" for both category and status
-    document.querySelectorAll('input[name="category"][value="all"]').forEach(cb => cb.checked = true);
-    document.querySelectorAll('input[name="status"][value="all"]').forEach(cb => cb.checked = true);
-    
-    // Uncheck all others
-    document.querySelectorAll('input[name="category"]:not([value="all"])').forEach(cb => cb.checked = false);
-    document.querySelectorAll('input[name="status"]:not([value="all"])').forEach(cb => cb.checked = false);
-    
-    loadExistingReports();
-}
+    window.loadExistingReports = loadExistingReports;
+    window.applyFilters = loadExistingReports;
+    window.clearFilters = clearFilters;
+    window.showMapHelp = showMapHelp;
 
-function applyFilters() {
-    loadExistingReports();
-}
-
-// Add event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click handlers for category checkboxes
-    document.querySelectorAll('input[name="category"]').forEach(checkbox => {
-        checkbox.addEventListener('click', function() {
-            handleCheckboxSelection(this, 'category');
-        });
-    });
-    
-    // Add click handlers for status checkboxes
-    document.querySelectorAll('input[name="status"]').forEach(checkbox => {
-        checkbox.addEventListener('click', function() {
-            handleCheckboxSelection(this, 'status');
-        });
-    });
-    
-    // Load all reports initially
-    loadExistingReports();
-    
-    // Set active users (random number for demo)
-    document.getElementById('activeUsers').textContent = Math.floor(Math.random() * 500) + 100;
-});
+    document.addEventListener('DOMContentLoaded', initPublicMap);
+})();

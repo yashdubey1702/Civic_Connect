@@ -11,13 +11,14 @@ $auth = new Auth($db);
 $auth->requireAuth('citizen');
 
 // Get user's reports
+$userId = (int)$_SESSION['user_id'];
 $query = "SELECT id, latitude, longitude, category, description, status, created_at, image_filename
           FROM reports
-          WHERE email = ?
+          WHERE user_id = ?
           ORDER BY created_at DESC";
 
 $stmt = $db->prepare($query);
-$stmt->bind_param("s", $_SESSION['email']);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $reports = $result->fetch_all(MYSQLI_ASSOC);
@@ -30,7 +31,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard – CivicConnect Bhubaneswar</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

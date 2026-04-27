@@ -3,38 +3,25 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/mail.php';
+require_once 'config/password_reset.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
 
-$email = trim($_POST['email']);
+    if ($email !== '') {
+        $_SESSION['reset_email'] = $email;
 
-$query = "SELECT id FROM users WHERE email=?";
-$stmt = $db->prepare($query);
-$stmt->bind_param("s",$email);
-$stmt->execute();
-$result = $stmt->get_result();
+        $otp = issuePasswordResetOtp($db, $email);
+        if ($otp !== null) {
+            sendOTP($email, $otp);
+        }
 
-if($result->num_rows === 1){
-
-$otp = rand(100000,999999);
-$expiry = date("Y-m-d H:i:s",strtotime("+5 minutes"));
-
-$query = "INSERT INTO password_resets (email,otp,expires_at) VALUES (?,?,?)";
-
-$stmt = $db->prepare($query);
-$stmt->bind_param("sss",$email,$otp,$expiry);
-$stmt->execute();
-
-sendOTP($email,$otp);
-
-$_SESSION['reset_email']=$email;
-
-header("Location: verify_account.php");
-exit;
-}
+        header("Location: verify_account.php");
+        exit;
+    }
 }
 ?>
 

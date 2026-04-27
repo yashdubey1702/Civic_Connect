@@ -2,14 +2,17 @@
 
 session_start();
 require_once 'config/database.php';
+require_once 'config/password_reset.php';
 
 if(!isset($_SESSION['reset_email'])){
-    header("Location: forgot_password.php");
+    header("Location: forget_password.php");
     exit;
 }
 
 $database = new Database();
 $db = $database->getConnection();
+$maskedEmail = maskResetEmail($_SESSION['reset_email']);
+$error = "";
 
 if($_SERVER['REQUEST_METHOD']=='POST'){
 
@@ -27,6 +30,7 @@ $stmt->execute();
 
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
+$stmt->close();
 
 if($row){
 
@@ -45,7 +49,7 @@ if($row){
 
 } else {
 
-    $error = "No OTP found";
+    $error = "Invalid or expired OTP";
 
 }
 
@@ -111,13 +115,19 @@ if($row){
     </div>
     <h2 class="fw-bold mb-1">Check your email</h2>
     <p class="text-muted mb-1">
-      We sent a 6-digit verification code to<br>
-      <strong class="text-dark">citizen@example.com</strong>
+      If an account exists, a 6-digit verification code was sent to<br>
+      <strong class="text-dark"><?php echo htmlspecialchars($maskedEmail); ?></strong>
     </p>
-    <a href="#" class="text-primary small fw-semibold text-decoration-none">
+    <a href="forget_password.php" class="text-primary small fw-semibold text-decoration-none">
       Change email address
     </a>
   </div>
+
+  <?php if (!empty($error)): ?>
+    <div class="alert alert-danger text-center py-2">
+      <?php echo htmlspecialchars($error); ?>
+    </div>
+  <?php endif; ?>
 
   <!-- OTP -->
   <form method="POST">

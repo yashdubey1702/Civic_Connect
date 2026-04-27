@@ -10,18 +10,23 @@ $auth = new Auth($db);
 // Require citizen authentication
 $auth->requireAuth('citizen');
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Get user's reports
-$user_id = $_SESSION['user_id'];
+$user_id = (int)$_SESSION['user_id'];
+$csrf_token = $_SESSION['csrf_token'];
 $reports = [];
 $error = '';
 
 $query = "SELECT id, latitude, longitude, category, description, status, created_at, image_filename
           FROM reports
-          WHERE email = ?
+          WHERE user_id = ?
           ORDER BY created_at DESC";
 
 $stmt = $db->prepare($query);
-$stmt->bind_param("s", $_SESSION['email']);
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 
 $result = $stmt->get_result();
@@ -35,8 +40,9 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
     <title>Report History - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

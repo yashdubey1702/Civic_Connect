@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `community_issues`
+-- Database: `town_issues`
 --
 
 -- --------------------------------------------------------
@@ -49,6 +49,20 @@ CREATE TABLE `reports` (
 INSERT INTO `reports` (`id`, `user_id`, `email`, `category`, `description`, `latitude`, `longitude`, `municipality`, `zone`, `status`, `image_filename`, `created_at`) VALUES
 (1, NULL, 'yash@gmail.com', 'Pothole', 'Road surface damaged near junction', 20.2813897, 85.8107758, 'w48', NULL, 'Reported', 'report_sample1.png', '2026-01-21 04:19:46'),
 (2, NULL, 'sambit@gmail.com', 'Broken Streetlight', 'Streetlight not working since 3 days', 20.3510126, 85.8054596, 'w1', NULL, 'Reported', 'report_sample2.png', '2026-01-21 04:19:46');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `otp` varchar(6) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -97,6 +111,15 @@ ALTER TABLE `reports`
   ADD KEY `fk_reports_user` (`user_id`);
 
 --
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_password_resets_email` (`email`),
+  ADD KEY `idx_password_resets_created_at` (`created_at`),
+  ADD KEY `idx_password_resets_expires_at` (`expires_at`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -112,6 +135,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`

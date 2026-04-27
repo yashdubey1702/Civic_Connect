@@ -32,6 +32,8 @@ $stmt->close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['profile_submit'])) {
     $full_name = trim($_POST['full_name']);
     $email = trim($_POST['email']);
+    $userId = (int)$_SESSION['user_id'];
+    $oldEmail = $_SESSION['email'];
 
     if (empty($full_name)) {
         $error = "Full name is required.";
@@ -50,12 +52,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['profile_submit'])) {
         if ($checkResult->num_rows > 0) {
             $error = "Email already exists. Please use a different email.";
         } else {
-            // Update profile
-            $updateQuery = "UPDATE users SET full_name = ?, email = ? WHERE id = ?";
-            $updateStmt = $db->prepare($updateQuery);
-            $updateStmt->bind_param("ssi", $full_name, $email, $_SESSION['user_id']);
+            $db->begin_transaction();
 
-            if ($updateStmt->execute()) {
+            try {
+                // Update profile
+                $updateQuery = "UPDATE users SET full_name = ?, email = ? WHERE id = ?";
+                $updateStmt = $db->prepare($updateQuery);
+                $updateStmt->bind_param("ssi", $full_name, $email, $userId);
+                if (!$updateStmt->execute()) {
+                    throw new RuntimeException("Profile update failed.");
+                }
+                $updateStmt->close();
+
+                // Link legacy email-only reports to this user before changing the session email.
+                $reportsQuery = "
+                    UPDATE reports
+                    SET user_id = ?, email = ?
+                    WHERE user_id = ? OR (user_id IS NULL AND email = ?)
+                ";
+                $reportsStmt = $db->prepare($reportsQuery);
+                $reportsStmt->bind_param("isis", $userId, $email, $userId, $oldEmail);
+                if (!$reportsStmt->execute()) {
+                    throw new RuntimeException("Report ownership update failed.");
+                }
+                $reportsStmt->close();
+
+                $db->commit();
+
                 $success = "Profile updated successfully!";
                 $is_editing = false;
 
@@ -68,11 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['profile_submit'])) {
                 $stmt->execute();
                 $user_details = $stmt->get_result()->fetch_assoc();
                 $stmt->close();
-            } else {
+            } catch (Throwable $e) {
+                $db->rollback();
                 $error = "Failed to update profile. Please try again.";
             }
-
-            $updateStmt->close();
         }
 
         $checkStmt->close();
@@ -133,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_submit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Municipal Issue Reporting System</title>
-    <link rel="icon" href="assets/images/BPR.png" type="image/png">
+    <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -243,14 +265,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_submit'])) {
             <?php if (!empty($error)): ?>
                 <div class="message-error">
                     <i class="fas fa-exclamation-circle"></i>
-                    <?php echo $error; ?>
+                    <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
             
             <?php if (!empty($success)): ?>
                 <div class="message-success">
                     <i class="fas fa-check-circle"></i>
-                    <?php echo $success; ?>
+                    <?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
             

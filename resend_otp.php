@@ -3,22 +3,24 @@
 session_start();
 require_once 'config/database.php';
 require_once 'config/mail.php';
+require_once 'config/password_reset.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
-$email = $_SESSION['reset_email'];
+if (!isset($_SESSION['reset_email'])) {
+    header("Location: forget_password.php");
+    exit;
+}
 
-$otp = rand(100000,999999);
-$expiry = date("Y-m-d H:i:s", strtotime("+5 minutes"));
+$email = trim($_SESSION['reset_email']);
 
-$query = "UPDATE password_resets SET otp=?, expires_at=? WHERE email=?";
-$stmt = $db->prepare($query);
-$stmt->bind_param("sss",$otp,$expiry,$email);
-$stmt->execute();
-
-sendOTP($email,$otp);
+$otp = issuePasswordResetOtp($db, $email);
+if ($otp !== null) {
+    sendOTP($email, $otp);
+}
 
 header("Location: verify_account.php");
+exit;
 
 ?>

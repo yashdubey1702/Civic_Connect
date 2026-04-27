@@ -28,6 +28,8 @@ if (!$auth->isLoggedIn() || !$auth->isCitizen()) {
  FETCH ONLY LOGGED-IN USER REPORTS
  ============================
 */
+$userId = (int)$_SESSION['user_id'];
+
 $query = "
     SELECT 
         id,
@@ -39,12 +41,12 @@ $query = "
         created_at,
         image_filename
     FROM reports
-    WHERE email = ?
+    WHERE user_id = ?
     ORDER BY created_at DESC
 ";
 
 $stmt = $db->prepare($query);
-$stmt->bind_param("s", $_SESSION['email']);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 
 $result  = $stmt->get_result();

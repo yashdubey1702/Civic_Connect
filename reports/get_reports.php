@@ -39,9 +39,10 @@ $bindTypes  = "";
 
 /* Citizen → own reports only */
 if ($auth->isCitizen()) {
-    $where[] = "email = ?";
+    $where[] = "(user_id = ? OR (user_id IS NULL AND email = ?))";
+    $bindValues[] = (int)$_SESSION['user_id'];
     $bindValues[] = $_SESSION['email'];
-    $bindTypes .= "s";
+    $bindTypes .= "is";
 }
 
 /* Ward Admin → forced ward */
@@ -54,7 +55,7 @@ elseif ($auth->isWardAdmin()) {
 }
 
 /* Municipal Admin → optional ward filter */
-elseif ($auth->isMunicipalAdmin() && $ward !== 'all' && $ward !== '') {
+elseif ($ward !== 'all' && $ward !== '') {
     $where[] = "municipality = ?";
     $bindValues[] = $ward;
     $bindTypes .= "s";
@@ -118,6 +119,36 @@ $totalPages = (int)ceil($totalRecords / $perPage);
 
 /*
  ============================
+ STATUS COUNTS FOR ALL MATCHING RECORDS
+ ============================
+*/
+$statusCounts = [
+    'Reported' => 0,
+    'Acknowledged' => 0,
+    'In Progress' => 0,
+    'Resolved' => 0
+];
+
+$statsSql = "SELECT status, COUNT(*) AS total FROM reports $whereClause GROUP BY status";
+$statsStmt = $db->prepare($statsSql);
+
+if (!empty($bindValues)) {
+    $statsStmt->bind_param($bindTypes, ...$bindValues);
+}
+
+$statsStmt->execute();
+$statsResult = $statsStmt->get_result();
+
+while ($row = $statsResult->fetch_assoc()) {
+    if (array_key_exists($row['status'], $statusCounts)) {
+        $statusCounts[$row['status']] = (int)$row['total'];
+    }
+}
+
+$statsStmt->close();
+
+/*
+ ============================
  FETCH PAGINATED DATA
  ============================
 */
@@ -129,6 +160,7 @@ $sql = "
         category,
         description,
         email,
+        municipality,
         status,
         created_at,
         image_filename
@@ -164,5 +196,6 @@ echo json_encode([
         'per_page'      => $perPage,
         'total_records' => $totalRecords,
         'total_pages'   => $totalPages
-    ]
+    ],
+    'status_counts' => $statusCounts
 ]);

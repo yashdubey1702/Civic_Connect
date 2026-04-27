@@ -13,8 +13,20 @@ $wardDetector = new BhubaneswarWardDetector();
 /* =========================
    AUTH CHECK
    ========================= */
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['email'], $_SESSION['user_id'])) {
     echo json_encode(["success" => false, "message" => "Not authenticated"]);
+    exit;
+}
+
+$userId = (int)$_SESSION['user_id'];
+$csrfToken = $_POST['csrf_token'] ?? '';
+
+if (
+    empty($_SESSION['csrf_token']) ||
+    !is_string($csrfToken) ||
+    !hash_equals($_SESSION['csrf_token'], $csrfToken)
+) {
+    echo json_encode(["success" => false, "message" => "Invalid request token"]);
     exit;
 }
 
@@ -99,37 +111,39 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 if ($imageFilename) {
     $query = "
         UPDATE reports
-        SET category = ?, description = ?, latitude = ?, longitude = ?, image_filename = ?, municipality = ?
-        WHERE id = ? AND email = ?
+        SET category = ?, description = ?, latitude = ?, longitude = ?, image_filename = ?, municipality = ?, user_id = ?
+        WHERE id = ? AND user_id = ?
     ";
     $stmt = $db->prepare($query);
     $stmt->bind_param(
-        "ssddssis",
+        "ssddssiii",
         $category,
         $description,
         $lat,
         $lng,
         $imageFilename,
         $ward,
+        $userId,
         $reportId,
-        $_SESSION['email']
+        $userId
     );
 } else {
     $query = "
         UPDATE reports
-        SET category = ?, description = ?, latitude = ?, longitude = ?, municipality = ?
-        WHERE id = ? AND email = ?
+        SET category = ?, description = ?, latitude = ?, longitude = ?, municipality = ?, user_id = ?
+        WHERE id = ? AND user_id = ?
     ";
     $stmt = $db->prepare($query);
     $stmt->bind_param(
-        "ssddsis",
+        "ssddsiii",
         $category,
         $description,
         $lat,
         $lng,
         $ward,
+        $userId,
         $reportId,
-        $_SESSION['email']
+        $userId
     );
 }
 

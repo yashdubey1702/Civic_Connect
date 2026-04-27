@@ -4,17 +4,21 @@ function filterReports() {
     const statusFilter = document.getElementById('reportStatusFilter');
     if (!statusFilter) return;
 
-    const value = statusFilter.value;
+    const value = statusFilter.value.toLowerCase().replace(/\s+/g, '-');
     const rows = document.querySelectorAll('.report-row');
 
     rows.forEach(row => {
         const status = row.getAttribute('data-status');
         row.style.display =
-            value === 'all' || status === value.toLowerCase() ? '' : 'none';
+            value === 'all' || status === value ? '' : 'none';
     });
 }
 
 // Update & Delete
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content || '';
+}
 
 function openUpdateModal(reportId, category, description, lat, lng) {
     document.getElementById('update_report_id').value = reportId;
@@ -46,7 +50,10 @@ function deleteReport(reportId) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: reportId })
+        body: JSON.stringify({
+            id: reportId,
+            csrf_token: getCsrfToken()
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -67,43 +74,48 @@ function deleteReport(reportId) {
     });
 }
 
-// Update form submission
-document.getElementById('updateForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('id', document.getElementById('update_report_id').value);
-    formData.append('category', document.getElementById('update_category').value);
-    formData.append('description', document.getElementById('update_description').value);
-    formData.append('lat', document.getElementById('update_lat').value);
-    formData.append('lng', document.getElementById('update_lng').value);
-    
-    const imageInput = document.getElementById('update_image');
-    if (imageInput.files[0]) {
-        formData.append('image', imageInput.files[0]);
-    }
-    
-    fetch('reports/update_report.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Report updated successfully!', 'success');
-            closeUpdateModal();
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        } else {
-            showNotification('Error: ' + data.message, 'error');
+function initUpdateForm() {
+    const updateForm = document.getElementById('updateForm');
+    if (!updateForm) return;
+
+    updateForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('id', document.getElementById('update_report_id').value);
+        formData.append('category', document.getElementById('update_category').value);
+        formData.append('description', document.getElementById('update_description').value);
+        formData.append('lat', document.getElementById('update_lat').value);
+        formData.append('lng', document.getElementById('update_lng').value);
+        formData.append('csrf_token', getCsrfToken());
+
+        const imageInput = document.getElementById('update_image');
+        if (imageInput.files[0]) {
+            formData.append('image', imageInput.files[0]);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error updating report.', 'error');
+
+        fetch('reports/update_report.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Report updated successfully!', 'success');
+                closeUpdateModal();
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating report.', 'error');
+        });
     });
-});
+}
 
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
@@ -155,6 +167,8 @@ function showNotification(message, type = 'success') {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    initUpdateForm();
+
     // Sidebar toggle functionality
     const sidebarToggle = document.querySelector('.sidebar-toggle');
     const sidebar = document.querySelector('.user-sidebar');
@@ -192,16 +206,16 @@ style.textContent = `
     }
     
     .notification.success {
-        background: var(--success);
+        background: #28a745;
     }
     
     .notification.error {
-        background: var(--danger);
+        background: #dc3545;
     }
     
     .notification.warning {
-        background: var(--warning);
-        color: var(--dark);
+        background: #ffc107;
+        color: #212529;
     }
     
     .notification.fade-out {
@@ -231,4 +245,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-

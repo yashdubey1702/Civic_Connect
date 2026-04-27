@@ -8,12 +8,6 @@
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/town_issues/assets/images/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "screenshots": [

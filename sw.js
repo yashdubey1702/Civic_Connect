@@ -1,5 +1,5 @@
 // Basic Service Worker for Caching (Cache First Strategy)
-const CACHE_NAME = 'biliran-issues-v1';
+const CACHE_NAME = 'civicconnect-bhubaneswar-v1';
 const urlsToCache = [
   '/town_issues/',
   '/town_issues/login.php',
