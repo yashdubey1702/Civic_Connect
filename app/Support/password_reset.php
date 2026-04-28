@@ -34,26 +34,32 @@ function passwordResetUserExists($db, $email) {
 }
 
 function cleanupPasswordResetAttempts($db, $email) {
-    $windowStart = date("Y-m-d H:i:s", time() - (RESET_OTP_WINDOW_MINUTES * 60));
+    $windowMinutes = (int)RESET_OTP_WINDOW_MINUTES;
 
-    $query = "DELETE FROM password_resets WHERE email = ? AND created_at < ?";
+    $query = "DELETE FROM password_resets
+              WHERE email = ?
+              AND (
+                  created_at < DATE_SUB(NOW(), INTERVAL {$windowMinutes} MINUTE)
+                  OR expires_at <= NOW()
+              )";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("ss", $email, $windowStart);
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->close();
 }
 
 function isPasswordResetThrottled($db, $email) {
-    $windowStart = date("Y-m-d H:i:s", time() - (RESET_OTP_WINDOW_MINUTES * 60));
+    $windowMinutes = (int)RESET_OTP_WINDOW_MINUTES;
 
     $query = "
         SELECT COUNT(*) AS total, MAX(created_at) AS last_sent
         FROM password_resets
-        WHERE email = ? AND created_at >= ?
+        WHERE email = ?
+        AND created_at >= DATE_SUB(NOW(), INTERVAL {$windowMinutes} MINUTE)
     ";
 
     $stmt = $db->prepare($query);
-    $stmt->bind_param("ss", $email, $windowStart);
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc() ?: ['total' => 0, 'last_sent' => null];
@@ -64,8 +70,16 @@ function isPasswordResetThrottled($db, $email) {
     }
 
     if (!empty($row['last_sent'])) {
-        $lastSentAt = strtotime($row['last_sent']);
-        if ($lastSentAt !== false && (time() - $lastSentAt) < RESET_OTP_COOLDOWN_SECONDS) {
+        $cooldownSeconds = (int)RESET_OTP_COOLDOWN_SECONDS;
+        $query = "SELECT TIMESTAMPDIFF(SECOND, ?, NOW()) AS seconds_since_last";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param("s", $row['last_sent']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $timeRow = $result->fetch_assoc() ?: ['seconds_since_last' => $cooldownSeconds];
+        $stmt->close();
+
+        if ((int)$timeRow['seconds_since_last'] < $cooldownSeconds) {
             return true;
         }
     }
@@ -89,11 +103,12 @@ function issuePasswordResetOtp($db, $email) {
     }
 
     $otp = (string)random_int(100000, 999999);
-    $expiry = date("Y-m-d H:i:s", strtotime("+" . RESET_OTP_TTL_MINUTES . " minutes"));
+    $ttlMinutes = (int)RESET_OTP_TTL_MINUTES;
 
-    $query = "INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, ?)";
+    $query = "INSERT INTO password_resets (email, otp, expires_at)
+              VALUES (?, ?, DATE_ADD(NOW(), INTERVAL {$ttlMinutes} MINUTE))";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("sss", $email, $otp, $expiry);
+    $stmt->bind_param("ss", $email, $otp);
     $stmt->execute();
     $stmt->close();
 

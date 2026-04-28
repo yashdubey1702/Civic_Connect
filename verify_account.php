@@ -13,28 +13,49 @@ $database = new Database();
 $db = $database->getConnection();
 $maskedEmail = maskResetEmail($_SESSION['reset_email']);
 $error = "";
+$notice = $_SESSION['reset_notice'] ?? "";
+$noticeType = $_SESSION['reset_notice_type'] ?? "success";
+unset($_SESSION['reset_notice']);
+unset($_SESSION['reset_notice_type']);
+$remainingSeconds = RESET_OTP_TTL_MINUTES * 60;
+
+function getLatestPasswordReset($db, $email) {
+    $query = "SELECT otp, expires_at,
+              GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), expires_at)) AS remaining_seconds
+              FROM password_resets
+              WHERE email = ?
+              ORDER BY created_at DESC
+              LIMIT 1";
+
+    $stmt = $db->prepare($query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    return $row ?: null;
+}
+
+$latestReset = getLatestPasswordReset($db, $_SESSION['reset_email']);
+if ($latestReset && !empty($latestReset['expires_at'])) {
+    $remainingSeconds = (int)$latestReset['remaining_seconds'];
+}
 
 if($_SERVER['REQUEST_METHOD']=='POST'){
 
 $email = $_SESSION['reset_email'];
-$otp = trim(implode("", $_POST['otp']));
+$otpParts = $_POST['otp'] ?? [];
+$otp = preg_replace('/\D/', '', is_array($otpParts) ? implode("", $otpParts) : (string)$otpParts);
+$row = getLatestPasswordReset($db, $email);
 
-$query = "SELECT * FROM password_resets 
-WHERE email = ? 
-ORDER BY created_at DESC 
-LIMIT 1";
+if(strlen($otp) !== 6){
 
-$stmt = $db->prepare($query);
-$stmt->bind_param("s", $email);
-$stmt->execute();
+    $error = "Enter the 6-digit verification code.";
 
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$stmt->close();
+} elseif($row){
 
-if($row){
-
-    if($row['otp'] == $otp && strtotime($row['expires_at']) > time()){
+    if(hash_equals((string)$row['otp'], $otp) && (int)$row['remaining_seconds'] > 0){
 
         $_SESSION['otp_verified'] = true;
 
@@ -43,13 +64,13 @@ if($row){
 
     } else {
 
-        $error = "Invalid or expired OTP";
+        $error = "Invalid or expired verification code.";
 
     }
 
 } else {
 
-    $error = "Invalid or expired OTP";
+    $error = "Invalid or expired verification code.";
 
 }
 
@@ -129,27 +150,33 @@ if($row){
     </div>
   <?php endif; ?>
 
-  <!-- OTP -->
-  <form method="POST">
+  <?php if (!empty($notice)): ?>
+    <div class="alert alert-<?php echo $noticeType === 'danger' ? 'danger' : 'success'; ?> text-center py-2">
+      <?php echo htmlspecialchars($notice); ?>
+    </div>
+  <?php endif; ?>
 
-    <div class="d-flex justify-content-center gap-2 my-4">
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required autofocus>
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required>
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required>
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required>
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required>
-      <input class="otp-input" name="otp[]" type="text" maxlength="1" required>
+  <!-- OTP -->
+  <form method="POST" id="otp-form" novalidate>
+
+    <div class="d-flex justify-content-center gap-2 my-4 otp-group" aria-label="6-digit verification code">
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1" required autofocus>
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 2" required>
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 3" required>
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 4" required>
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 5" required>
+      <input class="otp-input" name="otp[]" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1" aria-label="Digit 6" required>
     </div>
 
     <!-- Timer -->
     <div class="text-center small text-muted mb-2">
       <i class="bi bi-clock me-1"></i>
       Code expires in 
-      <span id="otp-timer" class="fw-semibold text-dark">05:00</span>
+      <span id="otp-timer" class="fw-semibold text-dark">--:--</span>
     </div>
 
     <div class="text-center small text-muted mb-4">
-      Didn’t receive the code?
+      Didn't receive the code?
       <a href="resend_otp.php" id="resend-btn" class="fw-bold text-primary text-decoration-none" style="pointer-events:none; opacity:0.5;">
       Resend
       </a>
@@ -178,36 +205,94 @@ if($row){
   <footer class="text-center small text-muted py-4">
     © 2026 CivicConnect. All rights reserved.
   </footer>
-    <script>
-      
-      let timeLeft = 300; // 5 minutes
-      let timer = document.getElementById("otp-timer");
-      let resendBtn = document.getElementById("resend-btn");
+  <script>
+    const otpForm = document.getElementById('otp-form');
+    const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+    const timer = document.getElementById('otp-timer');
+    const resendBtn = document.getElementById('resend-btn');
+    let timeLeft = <?php echo (int)$remainingSeconds; ?>;
 
-      let countdown = setInterval(function(){
+    function setOtpValue(code) {
+      const digits = code.replace(/\D/g, '').slice(0, otpInputs.length);
+      otpInputs.forEach((input, index) => {
+        input.value = digits[index] || '';
+        input.classList.toggle('has-value', Boolean(input.value));
+      });
 
-      let minutes = Math.floor(timeLeft / 60);
-      let seconds = timeLeft % 60;
+      const nextIndex = Math.min(digits.length, otpInputs.length - 1);
+      otpInputs[nextIndex].focus();
 
-      seconds = seconds < 10 ? "0"+seconds : seconds;
+      if (digits.length === otpInputs.length) {
+        otpInputs[otpInputs.length - 1].focus();
+      }
+    }
 
-      timer.innerText = minutes + ":" + seconds;
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', event => {
+        const digits = event.target.value.replace(/\D/g, '');
 
-      timeLeft--;
+        if (digits.length > 1) {
+          setOtpValue(digits);
+          return;
+        }
 
-      if(timeLeft < 0){
+        event.target.value = digits;
+        event.target.classList.toggle('has-value', Boolean(digits));
+        if (digits && otpInputs[index + 1]) {
+          otpInputs[index + 1].focus();
+        }
+      });
 
-      clearInterval(countdown);
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Backspace' && !input.value && otpInputs[index - 1]) {
+          otpInputs[index - 1].focus();
+          otpInputs[index - 1].value = '';
+          otpInputs[index - 1].classList.remove('has-value');
+        }
 
-      timer.innerText = "Expired";
+        if (event.key === 'ArrowLeft' && otpInputs[index - 1]) {
+          event.preventDefault();
+          otpInputs[index - 1].focus();
+        }
 
-      resendBtn.style.pointerEvents = "auto";
-      resendBtn.style.opacity = "1";
+        if (event.key === 'ArrowRight' && otpInputs[index + 1]) {
+          event.preventDefault();
+          otpInputs[index + 1].focus();
+        }
+      });
 
+      input.addEventListener('paste', event => {
+        event.preventDefault();
+        setOtpValue(event.clipboardData.getData('text'));
+      });
+    });
+
+    if (otpForm) {
+      otpForm.addEventListener('submit', event => {
+        const code = otpInputs.map(input => input.value).join('');
+        if (!/^\d{6}$/.test(code)) {
+          event.preventDefault();
+          otpInputs[0].focus();
+        }
+      });
+    }
+
+    function updateTimer() {
+      if (timeLeft <= 0) {
+        timer.innerText = '0:00';
+        resendBtn.style.pointerEvents = 'auto';
+        resendBtn.style.opacity = '1';
+        return;
       }
 
-      },1000);
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = String(timeLeft % 60).padStart(2, '0');
+      timer.innerText = `${minutes}:${seconds}`;
+      timeLeft -= 1;
+      setTimeout(updateTimer, 1000);
+    }
 
+    updateTimer();
   </script>
 
 </body>

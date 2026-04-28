@@ -169,16 +169,6 @@ function showNotification(message, type = 'success') {
 document.addEventListener('DOMContentLoaded', function() {
     initUpdateForm();
 
-    // Sidebar toggle functionality
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    const sidebar = document.querySelector('.user-sidebar');
-    
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-        });
-    }
-    
     // Initialize status filter
     const statusFilter = document.getElementById('reportStatusFilter');
     if (statusFilter) {

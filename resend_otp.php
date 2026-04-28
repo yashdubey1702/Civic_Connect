@@ -17,7 +17,16 @@ $email = trim($_SESSION['reset_email']);
 
 $otp = issuePasswordResetOtp($db, $email);
 if ($otp !== null) {
-    sendOTP($email, $otp);
+    if (sendOTP($email, $otp)) {
+        $_SESSION['reset_notice'] = "A new verification code has been sent.";
+        $_SESSION['reset_notice_type'] = "success";
+    } else {
+        $_SESSION['reset_notice'] = "We could not send the email right now. Please try again in a moment.";
+        $_SESSION['reset_notice_type'] = "danger";
+    }
+} else {
+    $_SESSION['reset_notice'] = "Please wait a moment before requesting another code.";
+    $_SESSION['reset_notice_type'] = "success";
 }
 
 header("Location: verify_account.php");

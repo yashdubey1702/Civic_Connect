@@ -83,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/user-dashboard.css">
+    <link rel="stylesheet" href="assets/css/mobile.css?v=3">
 </head>
 <body>
     <!-- Navigation Sidebar -->
@@ -162,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Header -->
         <header class="user-header">
             <div class="header-left">
-                <button class="sidebar-toggle">
+                <button class="sidebar-toggle" aria-label="Open menu" aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1>Change Password</h1>
@@ -278,5 +279,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="assets/js/theme-toggle.js"></script>
     <script src="assets/js/profile.js"></script>
+    <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

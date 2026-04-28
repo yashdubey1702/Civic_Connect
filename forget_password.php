@@ -7,16 +7,32 @@ require_once __DIR__ . '/app/Support/password_reset.php';
 
 $database = new Database();
 $db = $database->getConnection();
+$error = "";
+$emailValue = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
+    $emailValue = $email;
 
-    if ($email !== '') {
-        $_SESSION['reset_email'] = $email;
+    if ($email === '') {
+        $error = "Please enter your email address.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Enter a valid email address.";
+    } else {
+        $_SESSION['reset_email'] = strtolower($email);
 
-        $otp = issuePasswordResetOtp($db, $email);
+        $otp = issuePasswordResetOtp($db, $_SESSION['reset_email']);
         if ($otp !== null) {
-            sendOTP($email, $otp);
+            if (sendOTP($_SESSION['reset_email'], $otp)) {
+                $_SESSION['reset_notice'] = "A verification code has been sent.";
+                $_SESSION['reset_notice_type'] = "success";
+            } else {
+                $_SESSION['reset_notice'] = "We could not send the email right now. Please try again in a moment.";
+                $_SESSION['reset_notice_type'] = "danger";
+            }
+        } else {
+            $_SESSION['reset_notice'] = "If an account exists and a code can be sent now, it will arrive shortly.";
+            $_SESSION['reset_notice_type'] = "success";
         }
 
         header("Location: verify_account.php");
@@ -79,6 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <!-- FORM -->
       <form method="POST">
+        <?php if (!empty($error)): ?>
+          <div class="alert alert-danger py-2 text-center">
+            <?php echo htmlspecialchars($error); ?>
+          </div>
+        <?php endif; ?>
+
         <div class="mb-4 position-relative">
           <label class="form-label fw-semibold">Email Address</label>
           <i class="bi bi-envelope input-icon"></i>
@@ -87,12 +109,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             name="email"
             class="form-control"
             placeholder="e.g., citizen@example.com"
+            autocomplete="email"
+            value="<?php echo htmlspecialchars($emailValue); ?>"
             required
           >
         </div>
 
         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-          Send Reset Instructions
+          Send Verification Code
         </button>
       </form>
 

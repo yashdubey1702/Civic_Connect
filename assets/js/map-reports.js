@@ -391,14 +391,6 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             reportForm.addEventListener('submit', submitReport);
         }
 
-        const sidebarToggle = document.querySelector('.sidebar-toggle');
-        const sidebar = document.querySelector('.user-sidebar');
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-        }
-
         loadBoundary();
         setTimeout(() => userMap.invalidateSize(true), 150);
     }

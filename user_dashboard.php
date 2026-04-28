@@ -37,7 +37,7 @@ $stmt->close();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/user-dashboard.css">
-    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/mobile.css?v=3">
 
 <style>
 .leaflet-container {
@@ -137,7 +137,7 @@ $stmt->close();
         <!-- Header -->
         <header class="user-header">
             <div class="header-left">
-                <button class="sidebar-toggle hamburger-btn">☰</button>
+                <button class="sidebar-toggle hamburger-btn" aria-label="Open menu" aria-expanded="false">☰</button>
                 <h1>My Reports Dashboard</h1>
             </div>
             <div class="header-right">
@@ -255,7 +255,7 @@ $stmt->close();
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="assets/js/map-common.js"></script>
-    <script src="assets/js/user-dashboard.js"></script>
-    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/user-dashboard.js?v=3"></script>
+    <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

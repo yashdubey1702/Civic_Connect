@@ -28,13 +28,17 @@ body {
     background-color: #f8fafc;
     color: #2d3748;
     line-height: 1.6;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+html {
+    overflow-x: hidden;
 }
 
 .auth-container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* ===== ILLUSTRATION PANEL ===== */
@@ -65,11 +69,42 @@ body {
     max-width: 500px;
     text-align: center;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.illustration-content > .gov-logo,
+.illustration-content > .gov-logo-large {
+    width: clamp(150px, 28vw, 260px);
+    height: clamp(150px, 28vw, 260px);
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto clamp(1.25rem, 3vh, 2rem);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.16);
+}
+
+.illustration-content > .gov-logo-large > .gov-logo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.illustration-content > .gov-logo .gov-logo-image,
+.illustration-content > .gov-logo-large .gov-logo-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .gov-logo-large {
-    width: 80px;
-    height: 80px;
     background: var(--white);
     border-radius: 16px;
     display: flex;
@@ -86,15 +121,15 @@ body {
 }
 
 .illustration-content h2 {
-    font-size: 2.2rem;
+    font-size: clamp(1.75rem, 3vw, 2.2rem);
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .illustration-content p {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 1.4vw, 1.1rem);
     opacity: 0.9;
-    margin-bottom: 3rem;
+    margin-bottom: clamp(1.5rem, 4vh, 3rem);
 }
 
 .illustration-features {
@@ -131,6 +166,7 @@ body {
     padding: 2rem;
     background: var(--white);
     position: relative;
+    min-height: 100vh;
 }
 
 .auth-form-container {
@@ -248,14 +284,26 @@ body {
 
 .toggle-password {
     position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0.35rem;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     color: var(--secondary);
     cursor: pointer;
     z-index: 1;
+    padding: 0;
+}
+
+.toggle-password i {
+    position: static;
+    transform: none;
+    inset: auto;
+    line-height: 1;
 }
 
 .toggle-password:hover {
@@ -480,6 +528,63 @@ body {
     border-top: 1px solid #e2e8f0;
 }
 
+/* Register has more fields than login, so keep it compact without inner scroll. */
+.register-page .auth-form-panel {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.register-page .auth-form-container {
+    max-width: 420px;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+}
+
+.register-page .auth-header {
+    margin-bottom: 1.25rem;
+}
+
+.register-page .auth-header h1 {
+    font-size: clamp(1.8rem, 3vw, 2.15rem);
+}
+
+.register-page .auth-header p {
+    font-size: 1rem;
+}
+
+.register-page .auth-form {
+    margin-bottom: 1.25rem;
+}
+
+.register-page .form-group {
+    margin-bottom: 1rem;
+}
+
+.register-page .form-group label {
+    margin-bottom: 0.35rem;
+}
+
+.register-page .input-with-icon .form-control {
+    min-height: 54px;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.register-page .submit-btn {
+    min-height: 54px;
+    padding: 0.85rem 1rem;
+}
+
+.register-page .auth-footer {
+    margin-bottom: 1rem;
+}
+
+.register-page .auth-copyright {
+    padding-top: 1rem;
+    font-size: 0.85rem;
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1024px) {
     .auth-illustration {
@@ -558,8 +663,9 @@ body {
     max-width: 400px;
     width: 100%;
     margin: 0 auto;
-    max-height: 100vh;
+    max-height: calc(100vh - 4rem);
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 1rem 0;
 }
 
@@ -589,24 +695,28 @@ body {
 
 .toggle-password {
     position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0.35rem;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     color: var(--secondary);
     cursor: pointer;
     z-index: 2;
-    padding: 0.5rem;
+    padding: 0;
 }
 
 /* Ensure form controls with eye icon have proper padding */
 .input-with-icon.password-field .form-control {
-    padding-right: 3.5rem;
+    padding-right: 3.75rem;
 }
 
 .gov-logo-large img {
-    width: 200px;
+    width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
@@ -614,10 +724,38 @@ body {
 
 /* Match video logo to previous image dimensions */
 .gov-logo-large .gov-logo-video {
-    width: 200px;
+    width: 100%;
+    max-width: 200px;
     height: auto;
     display: block;
     margin: 0 auto;
     object-fit: contain;
 }
 
+@media (max-height: 760px) and (min-width: 1025px) {
+    .auth-illustration {
+        padding: 2rem;
+    }
+
+    .illustration-content > .gov-logo,
+    .illustration-content > .gov-logo-large {
+        width: clamp(130px, 22vw, 210px);
+        height: clamp(130px, 22vw, 210px);
+    }
+
+    .illustration-features {
+        gap: 1rem;
+    }
+
+    .feature i {
+        width: 36px;
+        height: 36px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    body {
+        overflow-y: auto;
+    }
+}

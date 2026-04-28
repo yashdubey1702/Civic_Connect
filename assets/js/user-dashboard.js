@@ -175,59 +175,6 @@ function initUserMap() {
     setTimeout(() => userMap.invalidateSize(), 150);
 }
 
-function initSidebar() {
-    const hamburgerBtn = document.querySelector('.hamburger-btn');
-    const sidebar = document.querySelector('.user-sidebar.sidebar');
-    const mainContent = document.querySelector('.user-main');
-
-    let overlay = document.querySelector('.sidebar-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        document.body.appendChild(overlay);
-    }
-
-    if (!hamburgerBtn || !sidebar) return;
-
-    function toggleSidebar() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-
-        if (mainContent) {
-            mainContent.classList.toggle('sidebar-open');
-        }
-
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-    }
-
-    hamburgerBtn.addEventListener('click', event => {
-        event.stopPropagation();
-        toggleSidebar();
-    });
-
-    overlay.addEventListener('click', () => {
-        if (sidebar.classList.contains('active')) {
-            toggleSidebar();
-        }
-    });
-
-    document.addEventListener('click', event => {
-        if (
-            sidebar.classList.contains('active') &&
-            !sidebar.contains(event.target) &&
-            event.target !== hamburgerBtn
-        ) {
-            toggleSidebar();
-        }
-    });
-
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && sidebar.classList.contains('active')) {
-            toggleSidebar();
-        }
-    });
-}
-
 function filterReports() {
     const statusFilter = document.getElementById('reportStatusFilter');
     if (!statusFilter) return;
@@ -259,18 +206,9 @@ function showNotification(message, type = 'success') {
 
 document.addEventListener('DOMContentLoaded', () => {
     initUserMap();
-    initSidebar();
 
     const statusFilter = document.getElementById('reportStatusFilter');
     if (statusFilter) {
         statusFilter.addEventListener('change', filterReports);
-    }
-
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    const sidebar = document.querySelector('.user-sidebar');
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-        });
     }
 });

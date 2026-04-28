@@ -97,6 +97,10 @@
     }
 
     /* OTP */
+    .otp-group {
+      flex-wrap: nowrap;
+    }
+
     .otp-input {
       width: 52px;
       height: 64px;
@@ -106,6 +110,11 @@
       border-radius: 10px;
       border: 1px solid #e5e7eb;
       background: #f8fafc;
+    }
+
+    .otp-input.has-value {
+      background: #fff;
+      border-color: #b6d4fe;
     }
 
     .otp-input:focus {
@@ -134,4 +143,12 @@
       background: #f8fafc;
       font-size: 0.8rem;
       color: #9ca3af;
+    }
+
+    @media (max-width: 480px) {
+      .otp-input {
+        width: 44px;
+        height: 56px;
+        font-size: 1.25rem;
+      }
     }
