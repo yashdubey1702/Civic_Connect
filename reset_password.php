@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config/database.php';
+require_once __DIR__ . '/app/Core/Database.php';
 
 if (!isset($_SESSION['otp_verified']) || !isset($_SESSION['reset_email'])) {
     header("Location: forget_password.php");

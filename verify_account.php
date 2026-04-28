@@ -1,8 +1,8 @@
 <?php
 
 session_start();
-require_once 'config/database.php';
-require_once 'config/password_reset.php';
+require_once __DIR__ . '/app/Core/Database.php';
+require_once __DIR__ . '/app/Support/password_reset.php';
 
 if(!isset($_SESSION['reset_email'])){
     header("Location: forget_password.php");

@@ -4,8 +4,8 @@ if (PHP_SAPI !== 'cli') {
     exit('Not found');
 }
 
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/config/BhubaneswarDetector.php';
+require_once __DIR__ . '/../../app/Core/Database.php';
+require_once __DIR__ . '/../../app/Services/BhubaneswarDetector.php';
 
 
 $database = new Database();

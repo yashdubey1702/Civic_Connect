@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-require_once '../config/database.php';
+require_once __DIR__ . '/../app/Core/Database.php';
 
 $database = new Database();
 $db = $database->getConnection(); // mysqli

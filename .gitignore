@@ -1,0 +1,17 @@
+.env
+
+# Local/generated files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# User uploads
+reports/uploads/*
+!reports/uploads/.gitkeep
+
+# Local editor and dependency folders
+.idea/
+.vscode/
+node_modules/
+vendor/

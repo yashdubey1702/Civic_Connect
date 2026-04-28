@@ -4,8 +4,8 @@ if (PHP_SAPI !== 'cli') {
     exit('Not found');
 }
 
-require_once 'config/database.php';
-require_once 'config/BhubaneswarDetector.php';
+require_once __DIR__ . '/../../app/Core/Database.php';
+require_once __DIR__ . '/../../app/Services/BhubaneswarDetector.php';
 
 $database = new Database();
 $db = $database->getConnection(); // mysqli

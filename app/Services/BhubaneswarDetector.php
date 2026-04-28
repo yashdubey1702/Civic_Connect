@@ -16,7 +16,7 @@ class BhubaneswarWardDetector
      
     private function loadGeoJSON()
     {
-        $path = __DIR__ . '/../data/Wards.geojson';
+        $path = __DIR__ . '/../../data/Wards.geojson';
         if (file_exists($path)) {
             $this->geoJsonData = json_decode(file_get_contents($path), true);
         }

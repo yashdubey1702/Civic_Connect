@@ -1,8 +1,8 @@
 <?php
 // reports/get_stats.php
 header('Content-Type: application/json');
-require_once '../config/database.php';
-require_once '../config/Auth.php';
+require_once __DIR__ . '/../app/Core/Database.php';
+require_once __DIR__ . '/../app/Core/Auth.php';
 
 session_start();
 

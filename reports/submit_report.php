@@ -2,8 +2,8 @@
 session_start();
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/BhubaneswarDetector.php';
+require_once __DIR__ . '/../app/Core/Database.php';
+require_once __DIR__ . '/../app/Services/BhubaneswarDetector.php';
 
 /* =========================
    INIT

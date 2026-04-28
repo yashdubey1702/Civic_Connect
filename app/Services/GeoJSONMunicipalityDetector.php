@@ -14,7 +14,7 @@ class GeoJSONWardDetector
   
     private function loadWardGeoJSON()
     {
-        $path = __DIR__ . '/../data/wards.geojson';
+        $path = __DIR__ . '/../../data/Wards.geojson';
 
         if (!file_exists($path)) {
             return;
