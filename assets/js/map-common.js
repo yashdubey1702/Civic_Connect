@@ -20,10 +20,42 @@ function isWithinBhubaneswar(lat, lng, bmcLayer) {
     return results.length > 0;
 }
 
+//Load ward division lines first, then keep the full city boundary on top.
+
+function loadBhubaneswarWardBoundaries(map) {
+    return fetch('./data/Wards.geojson')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const layer = L.geoJSON(data, {
+                interactive: false,
+                style: {
+                    color: '#f6a44b',
+                    weight: 1.25,
+                    opacity: 0.62,
+                    fillOpacity: 0,
+                    fillColor: 'transparent',
+                    className: 'ward-boundary'
+                }
+            }).addTo(map);
+
+            console.log('[MapCommon] Ward boundaries loaded');
+            return layer;
+        })
+        .catch(error => {
+            console.error('[MapCommon] Failed to load ward boundaries:', error);
+            return null;
+        });
+}
+
 //Load Bhubaneswar Municipal Boundary
 
 function loadBhubaneswarBoundary(map) {
-    return fetch('./data/bmc_boundary.geojson')
+    return loadBhubaneswarWardBoundaries(map).then(() => fetch('./data/bmc_boundary.geojson')
         .then(response => {
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);
@@ -34,7 +66,8 @@ function loadBhubaneswarBoundary(map) {
             const layer = L.geoJSON(data, {
                 style: {
                     color: "#ff7800",
-                    weight: 3,
+                    weight: 2.5,
+                    opacity: 0.95,
                     fillOpacity: 0,
                     fillColor: "transparent",
                     className: 'bmc-boundary'
@@ -53,6 +86,7 @@ function loadBhubaneswarBoundary(map) {
 
             // Zoom map to city bounds
             map.fitBounds(layer.getBounds());
+            layer.bringToFront();
 
             console.log('[MapCommon] BMC boundary loaded');
             return layer;
@@ -60,5 +94,5 @@ function loadBhubaneswarBoundary(map) {
         .catch(error => {
             console.error('[MapCommon] Failed to load BMC boundary:', error);
             return null;
-        });
+        }));
 }

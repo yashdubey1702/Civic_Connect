@@ -8,6 +8,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
     let tempMarker = null;
     let userMarkers = [];
     let statusIcons = {};
+    let searchAbortController = null;
 
     function escapeHtml(value) {
         return (value == null ? '' : String(value))
@@ -108,6 +109,24 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
         return leafletPip.pointInLayer(point, bmcLayer, true).length > 0;
     }
 
+    function pointIsInsideBoundary(lat, lng) {
+        if (!bmcLayer || typeof leafletPip === 'undefined') return false;
+        return leafletPip.pointInLayer(L.latLng(lat, lng), bmcLayer, true).length > 0;
+    }
+
+    function setSearchState(message = '', isLoading = false) {
+        const status = document.getElementById('locationSearchStatus');
+        const searchButton = document.getElementById('locationSearchBtn');
+
+        if (status) status.textContent = message;
+        if (searchButton) {
+            searchButton.disabled = isLoading;
+            searchButton.innerHTML = isLoading
+                ? '<i class="fas fa-spinner fa-spin"></i>'
+                : '<i class="fas fa-search"></i>';
+        }
+    }
+
     function setSelectedLocation(lat, lng) {
         const latInput = document.getElementById('lat');
         const lngInput = document.getElementById('lng');
@@ -204,7 +223,28 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
     }
 
     function loadBoundary() {
-        return fetch('./data/bmc_boundary.geojson')
+        return fetch('./data/Wards.geojson')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                L.geoJSON(data, {
+                    interactive: false,
+                    style: {
+                        color: '#f6a44b',
+                        weight: 1.25,
+                        opacity: 0.62,
+                        fillOpacity: 0,
+                        fillColor: 'transparent',
+                        className: 'ward-boundary'
+                    }
+                }).addTo(userMap);
+            })
+            .catch(error => {
+                console.error('Ward boundary load failed:', error);
+            })
+            .then(() => fetch('./data/bmc_boundary.geojson'))
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();
@@ -213,7 +253,8 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
                 bmcLayer = L.geoJSON(data, {
                     style: {
                         color: '#ff7800',
-                        weight: 3,
+                        weight: 2.5,
+                        opacity: 0.95,
                         fillOpacity: 0,
                         fillColor: 'transparent',
                         className: 'bmc-boundary'
@@ -227,6 +268,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
                 });
 
                 userMap.fitBounds(bmcLayer.getBounds());
+                bmcLayer.bringToFront();
             })
             .catch(error => {
                 console.error('BMC boundary load failed:', error);
@@ -241,6 +283,11 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             return;
         }
 
+        if (!bmcLayer) {
+            showNotification('Map boundary is still loading. Please try again in a moment.', 'warning');
+            return;
+        }
+
         const searchInput = document.getElementById('locationSearch');
         const query = searchInput ? searchInput.value.trim() : '';
 
@@ -249,30 +296,75 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             return;
         }
 
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+        if (searchAbortController) {
+            searchAbortController.abort();
+        }
+
+        const controller = new AbortController();
+        searchAbortController = controller;
+        setSearchState('Searching Bhubaneswar...', true);
+
+        const searchParams = new URLSearchParams({
+            format: 'json',
+            q: `${query}, Bhubaneswar, Odisha, India`,
+            addressdetails: '1',
+            limit: '8',
+            countrycodes: 'in',
+            viewbox: '85.70,20.40,85.95,20.18',
+            bounded: '1'
+        });
+
+        fetch(`https://nominatim.openstreetmap.org/search?${searchParams.toString()}`, {
+            signal: controller.signal
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 if (!Array.isArray(data) || data.length === 0) {
+                    setSearchState('No matching location found.');
                     showNotification('Location not found.', 'error');
                     return;
                 }
 
-                const lat = parseFloat(data[0].lat);
-                const lng = parseFloat(data[0].lon);
+                const match = data.find(result => {
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    return Number.isFinite(lat) && Number.isFinite(lng) && pointIsInsideBoundary(lat, lng);
+                });
 
-                if (!isWithinLoadedBoundary(lat, lng)) {
+                if (!match) {
+                    setSearchState('No result found inside Bhubaneswar city limits.');
                     showNotification('Location is outside Bhubaneswar city.', 'warning');
                     return;
                 }
 
+                const lat = parseFloat(match.lat);
+                const lng = parseFloat(match.lon);
+                const label = match.display_name ? match.display_name.split(',').slice(0, 3).join(',') : 'Searched Location';
+
                 userMap.setView([lat, lng], 15);
-                placeTempMarker(lat, lng, 'Searched Location');
+                placeTempMarker(lat, lng, escapeHtml(label));
                 setSelectedLocation(lat, lng);
+                setSearchState(label);
                 openReportModal();
             })
             .catch(error => {
+                if (error.name === 'AbortError') return;
                 console.error('Search failed:', error);
+                setSearchState('Search failed. Please try again.');
                 showNotification('Search failed.', 'error');
+            })
+            .finally(() => {
+                if (searchAbortController === controller) {
+                    searchAbortController = null;
+                    const searchButton = document.getElementById('locationSearchBtn');
+                    if (searchButton) {
+                        searchButton.disabled = false;
+                        searchButton.innerHTML = '<i class="fas fa-search"></i>';
+                    }
+                }
             });
     }
 
@@ -287,6 +379,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             return;
         }
 
+        setSearchState('Locating you...');
         showNotification('Fetching your location...', 'success');
 
         navigator.geolocation.getCurrentPosition(
@@ -302,10 +395,12 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
                 userMap.setView([lat, lng], 15);
                 placeTempMarker(lat, lng, 'You are here');
                 setSelectedLocation(lat, lng);
+                setSearchState('Current location selected.');
                 openReportModal();
             },
             error => {
                 console.error('Geolocation failed:', error);
+                setSearchState('Unable to retrieve your location.');
                 showNotification('Unable to retrieve your location.', 'error');
             },
             { enableHighAccuracy: true }
@@ -340,7 +435,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showNotification('Report submitted successfully.', 'success');
+                    showNotification(data.message || 'Report submitted successfully.', data.email_sent === false ? 'warning' : 'success');
                     closeReportModal();
                     loadUserReports();
                 } else {
@@ -389,6 +484,16 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
 
         if (reportForm) {
             reportForm.addEventListener('submit', submitReport);
+        }
+
+        const searchInput = document.getElementById('locationSearch');
+        if (searchInput) {
+            searchInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchLocation();
+                }
+            });
         }
 
         loadBoundary();

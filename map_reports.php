@@ -147,6 +147,24 @@ $stmt->close();
                 </div>
                 <div class="card-body">
                     <p>View your submitted reports within Bhubaneswar City</p>
+                    <div class="map-search-panel" role="search" aria-label="Search report location">
+                        <div class="map-search-box">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <input
+                                type="search"
+                                id="locationSearch"
+                                placeholder="Search a location in Bhubaneswar"
+                                autocomplete="off"
+                            />
+                        </div>
+                        <button type="button" id="locationSearchBtn" class="map-icon-btn" onclick="searchLocation()" title="Search location" aria-label="Search location">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button type="button" id="currentLocationBtn" class="map-icon-btn" onclick="getCurrentLocation()" title="Use current location" aria-label="Use current location">
+                            <i class="fas fa-location-arrow"></i>
+                        </button>
+                        <span id="locationSearchStatus" class="map-search-status" aria-live="polite"></span>
+                    </div>
                     <div id="userMap">
                         <!-- Map Legend -->
                         <div class="map-legend">
@@ -167,25 +185,6 @@ $stmt->close();
                                 <span class="legend-color" style="background-color: #2e7d32;"></span>
                                 <span>Resolved</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="map-actions">
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <!-- Search Box -->
-                            <input
-                                type="text"
-                                id="locationSearch"
-                                placeholder="Search location..."
-                                style="padding: 8px; width: 250px; border-radius: 6px; border: 1px solid #ccc;"
-                            />
-                            <!-- Search Button -->
-                            <button onclick="searchLocation()" class="refresh-btn">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <!-- Current Location Button -->
-                            <button onclick="getCurrentLocation()" class="refresh-btn">
-                                <i class="fas fa-location-arrow"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -245,7 +244,8 @@ $stmt->close();
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-    <script src="./assets/js/map-reports.js?v=3"></script>
+    <script src="./assets/js/map-reports.js?v=4"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="assets/js/sidebar.js?v=3"></script>
     <script>
         function openModal() {

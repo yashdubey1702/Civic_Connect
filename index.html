@@ -72,6 +72,25 @@
 
       <div class="hero-illustration">
         <i class="fas fa-map-marked-alt"></i>
+        <div class="status-tracker-card">
+          <h3><i class="fas fa-search-location"></i> Track Report Status</h3>
+          <form id="statusTrackerForm" class="status-tracker-form">
+            <label for="trackingToken" class="sr-only">Tracking token</label>
+            <input
+              type="text"
+              id="trackingToken"
+              name="tracking_token"
+              placeholder="Enter token e.g. CC-1A2B3C4D"
+              autocomplete="off"
+              required
+            >
+            <button type="submit">
+              <i class="fas fa-search"></i>
+              Track
+            </button>
+          </form>
+          <div id="trackingResult" class="tracking-result" aria-live="polite"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -326,30 +345,41 @@
   <!-- Government Footer -->
   <footer class="gov-footer">
     <div class="footer-content">
-      <div class="footer-section">
-        <h3>Municipal Services</h3>
-        <p>Dedicated to maintaining and improving our community infrastructure and public spaces.</p>
+      <div class="footer-main">
+        <div class="footer-agency">
+          <p class="footer-helpline">CivicConnect Bhubaneswar Helpdesk: <strong>Use official BMC citizen service channels</strong></p>
+          <nav class="footer-links" aria-label="Footer links">
+            <a href="archives.php">Archives</a>
+            <a href="privacy_policy.php">Privacy Policy</a>
+            <a href="hyperlinking_policy.php">Hyperlinking Policy</a>
+            <a href="copyright_policy.php">Copyright Policy</a>
+            <a href="accessibility_statement.php">Accessibility Statement</a>
+            <a href="public_help.php">Help</a>
+            <a href="feedback.php">Feedback</a>
+            <a href="contact_us.php">Contact Us</a>
+          </nav>
+          <p>
+            Website content managed by <strong>Bhubaneswar Municipal Corporation</strong>.
+            Designed, developed and hosted for CivicConnect citizen services.
+          </p>
+          <p>
+            Visitors: <strong id="footerVisitors">22789597</strong>
+            <span class="footer-divider"></span>
+            Page last updated on: <strong>29/4/2026</strong>
+          </p>
+        </div>
+        <div class="footer-badges" aria-label="CivicConnect footer summary">
+          <span class="footer-seal"><i class="fas fa-shield-alt"></i> Secure Civic Service</span>
+          <span class="footer-seal"><i class="fas fa-universal-access"></i> Accessible Platform</span>
+        </div>
       </div>
-      <div class="footer-section">
-        <h3>Contact Information</h3>
-        <p>Bhubaneswar Municipal Corporation<br>
-        Use official BMC citizen service channels for current helplines and email contacts.<br>
-        Emergency services: use the appropriate local emergency number.</p>
-      </div>
-      <div class="footer-section">
-        <h3>Office Hours</h3>
-        <p>Please refer to the official Bhubaneswar Municipal Corporation website for current office hours and holiday schedules.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 Municipal Government of Bhubaneswar. All rights reserved.</p>
     </div>
   </footer>
 
   <!-- JavaScript -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-  <script src="assets/js/map-common.js"></script>
-  <script src="assets/js/public-map.js"></script>
+  <script src="assets/js/map-common.js?v=2"></script>
+  <script src="assets/js/public-map.js?v=3"></script>
 </body>
 </html>

@@ -8,6 +8,24 @@ session_start();
 $database = new Database();
 $db = $database->getConnection(); // mysqli
 $auth = new Auth($db);
+
+if (!$auth->isLoggedIn() || (!$auth->isCitizen() && !$auth->isAdmin())) {
+    http_response_code(401);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Unauthorized access',
+        'reports' => [],
+        'pagination' => [
+            'current_page' => 1,
+            'per_page' => 0,
+            'total_records' => 0,
+            'total_pages' => 0
+        ],
+        'status_counts' => []
+    ]);
+    exit;
+}
+
 $search  = trim($_GET['search'] ?? '');
 $page    = max(1, (int)($_GET['page'] ?? 1));
 $perPage = max(1, (int)($_GET['per_page'] ?? 10));
@@ -47,8 +65,7 @@ if ($auth->isCitizen()) {
 
 /* Ward Admin → forced ward */
 elseif ($auth->isWardAdmin()) {
-    // $adminWard = strtoupper($auth->getWard());
-    $adminWard = strtoupper($_SESSION['ward']);
+    $adminWard = strtoupper((string)$auth->getWard());
     $where[] = "municipality = ?";
     $bindValues[] = $adminWard;
     $bindTypes .= "s";

@@ -59,6 +59,7 @@ CREATE TABLE `reports` (
   `municipality` varchar(50) DEFAULT NULL,
   `zone` varchar(50) DEFAULT NULL,
   `status` enum('Reported','Acknowledged','In Progress','Resolved') DEFAULT 'Reported',
+  `tracking_token` varchar(32) DEFAULT NULL,
   `image_filename` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -86,7 +87,7 @@ CREATE TABLE `users` (
   `full_name` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
-  `user_type` enum('citizen','municipal_admin','ward_admin','super_admin') NOT NULL,
+  `user_type` enum('citizen','volunteer','municipal_admin','ward_admin','super_admin') NOT NULL,
   `ward` varchar(10) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `last_login` datetime DEFAULT NULL,
@@ -170,6 +171,70 @@ INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `user_type`, `
 (136, 'System Administrator', 'admin@municipal.gov.ph', '$2y$10$WuK40SW4HLNRACNcOxrjnemgkpFiQwxbYSeidY6KXkkgHy1TkNBRe', 'super_admin', NULL, 1, NULL, '2026-04-15 13:43:13'),
 (137, 'Juan Dela Cruz', 'citizen@example.com', '$2y$10$upu12MFjFRc1Y7kixGyBO.WLLorKfcY7pMOhaOBnOpAwmTMfP0.K.', 'citizen', NULL, 1, '2026-04-27 10:44:07', '2026-04-15 13:43:13');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `volunteer_profiles`
+--
+
+CREATE TABLE `volunteer_profiles` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `full_name` varchar(150) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `ward_no` varchar(50) DEFAULT NULL,
+  `skills` text DEFAULT NULL,
+  `availability` varchar(100) DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected','Suspended') DEFAULT 'Pending',
+  `admin_note` text DEFAULT NULL,
+  `approved_by` int(11) DEFAULT NULL,
+  `approved_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `volunteer_tasks`
+--
+
+CREATE TABLE `volunteer_tasks` (
+  `id` int(11) NOT NULL,
+  `report_id` int(11) NOT NULL,
+  `volunteer_user_id` int(11) NOT NULL,
+  `assigned_by` int(11) NOT NULL,
+  `status` enum('Assigned','Accepted','In Progress','Completed','Verified','Rejected','Cancelled') DEFAULT 'Assigned',
+  `assigned_note` text DEFAULT NULL,
+  `completion_note` text DEFAULT NULL,
+  `proof_image` varchar(255) DEFAULT NULL,
+  `admin_review_note` text DEFAULT NULL,
+  `assigned_at` datetime DEFAULT current_timestamp(),
+  `accepted_at` datetime DEFAULT NULL,
+  `started_at` datetime DEFAULT NULL,
+  `completed_at` datetime DEFAULT NULL,
+  `verified_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `volunteer_task_updates`
+--
+
+CREATE TABLE `volunteer_task_updates` (
+  `id` int(11) NOT NULL,
+  `task_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `old_status` varchar(50) DEFAULT NULL,
+  `new_status` varchar(50) NOT NULL,
+  `note` text DEFAULT NULL,
+  `image_path` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -189,6 +254,7 @@ ALTER TABLE `reports`
   ADD KEY `idx_reports_status` (`status`),
   ADD KEY `idx_reports_category` (`category`),
   ADD KEY `idx_reports_municipality` (`municipality`),
+  ADD UNIQUE KEY `idx_reports_tracking_token` (`tracking_token`),
   ADD KEY `idx_reports_location` (`latitude`,`longitude`),
   ADD KEY `idx_reports_created_at` (`created_at`),
   ADD KEY `fk_reports_user` (`user_id`);
@@ -200,6 +266,32 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `unique_ward_admin` (`ward`,`user_type`);
+
+--
+-- Indexes for table `volunteer_profiles`
+--
+ALTER TABLE `volunteer_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_volunteer_user` (`user_id`),
+  ADD KEY `idx_volunteer_profiles_status` (`status`),
+  ADD KEY `idx_volunteer_profiles_ward` (`ward_no`);
+
+--
+-- Indexes for table `volunteer_tasks`
+--
+ALTER TABLE `volunteer_tasks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_volunteer_tasks_report` (`report_id`),
+  ADD KEY `idx_volunteer_tasks_user` (`volunteer_user_id`),
+  ADD KEY `idx_volunteer_tasks_status` (`status`);
+
+--
+-- Indexes for table `volunteer_task_updates`
+--
+ALTER TABLE `volunteer_task_updates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_volunteer_task_updates_task` (`task_id`),
+  ADD KEY `idx_volunteer_task_updates_user` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -222,6 +314,24 @@ ALTER TABLE `reports`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
+
+--
+-- AUTO_INCREMENT for table `volunteer_profiles`
+--
+ALTER TABLE `volunteer_profiles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `volunteer_tasks`
+--
+ALTER TABLE `volunteer_tasks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `volunteer_task_updates`
+--
+ALTER TABLE `volunteer_task_updates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

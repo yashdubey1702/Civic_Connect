@@ -254,8 +254,9 @@ $stmt->close();
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="assets/js/map-common.js"></script>
-    <script src="assets/js/user-dashboard.js?v=3"></script>
+    <script src="assets/js/map-common.js?v=2"></script>
+    <script src="assets/js/user-dashboard.js?v=4"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

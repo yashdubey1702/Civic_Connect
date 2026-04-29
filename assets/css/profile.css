@@ -46,7 +46,9 @@
 }
 
 [data-theme="dark"] .profile-field-view {
-    background: #2d3748;
+    background: #0D1117;
+    color: #F9FAFB;
+    border-color: #30363D;
 }
 
 /* Edit profile button */
@@ -85,11 +87,11 @@
 }
 
 [data-theme="dark"] .password-section {
-    border-top: 1px solid #4a5568;
+    border-top: 1px solid #30363D;
 }
 
 [data-theme="dark"] .password-section h3 {
-    color: #e2e8f0;
+    color: #F9FAFB;
 }
 
 /* Form elements */
@@ -223,15 +225,15 @@
 
 /* Dark theme adjustments */
 [data-theme="dark"] .form-text {
-    color: #a0aec0;
+    color: #9CA3AF;
 }
 
 [data-theme="dark"] .profile-info h2 {
-    color: #e2e8f0;
+    color: #F9FAFB;
 }
 
 [data-theme="dark"] .password-section h3 {
-    color: #e2e8f0;
+    color: #F9FAFB;
 }
 
 /* Responsive adjustments */
@@ -264,4 +266,3 @@
         align-self: flex-start;
     }
 }
-

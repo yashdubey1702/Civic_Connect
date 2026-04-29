@@ -1,0 +1,240 @@
+:root {
+    --primary: #4361ee;
+    --primary-dark: #273cba;
+    --text: #172033;
+    --muted: #64748b;
+    --line: #dbe3ef;
+    --panel: #ffffff;
+    --bg: #f4f7fb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(67, 97, 238, 0.14), transparent 30%),
+        linear-gradient(135deg, #ffffff 0%, var(--bg) 100%);
+}
+
+.public-header {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 22px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.public-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.public-brand img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    padding: 7px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.public-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.public-nav a {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    background: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.public-page {
+    width: min(100% - 32px, 1040px);
+    margin: 0 auto 54px;
+}
+
+.public-hero {
+    padding: 42px 0 24px;
+}
+
+.public-hero p {
+    margin: 0 0 10px;
+    color: var(--primary);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.public-hero h1 {
+    margin: 0;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+.public-hero span {
+    display: block;
+    max-width: 760px;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.content-card,
+.feedback-card {
+    padding: 30px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 20px 55px rgba(15, 23, 42, 0.1);
+}
+
+.content-section + .content-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+}
+
+.content-section h2 {
+    margin: 0 0 10px;
+    font-size: 1.22rem;
+}
+
+.content-section p {
+    margin: 0.5rem 0;
+    color: var(--muted);
+    line-height: 1.75;
+}
+
+.feedback-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 7px;
+}
+
+.field label {
+    font-weight: 800;
+    color: #334155;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 13px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    background: #ffffff;
+    font: inherit;
+}
+
+.field textarea {
+    min-height: 150px;
+    padding-top: 12px;
+    resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.13);
+}
+
+.submit-feedback {
+    width: fit-content;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 12px;
+    color: #ffffff;
+    background: var(--primary);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.notice {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-weight: 700;
+}
+
+.notice.success {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.notice.error {
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+@media (max-width: 720px) {
+    .public-header,
+    .form-grid {
+        align-items: flex-start;
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .public-nav,
+    .public-nav a,
+    .submit-feedback {
+        width: 100%;
+    }
+
+    .public-nav a {
+        justify-content: center;
+    }
+
+    .content-card,
+    .feedback-card {
+        padding: 22px;
+    }
+}

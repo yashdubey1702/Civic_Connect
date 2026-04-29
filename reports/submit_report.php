@@ -3,6 +3,7 @@ session_start();
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../app/Core/Database.php';
+require_once __DIR__ . '/../app/Support/mail.php';
 require_once __DIR__ . '/../app/Services/BhubaneswarDetector.php';
 
 /* =========================
@@ -25,6 +26,30 @@ $email = $_SESSION['email'] ?? null;
 $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 
 $imageFilename = null;
+
+function generateTrackingToken(mysqli $db): string
+{
+    do {
+        $token = 'CC-' . strtoupper(bin2hex(random_bytes(4)));
+        $check = $db->prepare("SELECT id FROM reports WHERE tracking_token = ? LIMIT 1");
+        $check->bind_param("s", $token);
+        $check->execute();
+        $exists = $check->get_result()->num_rows > 0;
+        $check->close();
+    } while ($exists);
+
+    return $token;
+}
+
+function getHomePageUrl(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $basePath = rtrim(dirname(dirname($scriptName)), '/');
+
+    return $scheme . '://' . $host . ($basePath === '' ? '' : $basePath) . '/index.html';
+}
 
 /* =========================
    AUTH VALIDATION
@@ -128,15 +153,17 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 /* =========================
    INSERT REPORT
    ========================= */
+$trackingToken = generateTrackingToken($db);
+
 $query = "
     INSERT INTO reports
-        (user_id, latitude, longitude, category, description, email, image_filename, municipality)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (user_id, latitude, longitude, category, description, email, image_filename, municipality, tracking_token)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $db->prepare($query);
 $stmt->bind_param(
-    "iddsssss",
+    "iddssssss",
     $userId,
     $lat,
     $lng,
@@ -144,14 +171,30 @@ $stmt->bind_param(
     $description,
     $email,
     $imageFilename,
-    $ward
+    $ward,
+    $trackingToken
 );
 
 if ($stmt->execute()) {
+    $reportId = (int)$db->insert_id;
+    $emailSent = sendReportTrackingEmail($email, [
+        'report_id' => $reportId,
+        'category' => $category,
+        'description' => $description,
+        'ward' => $ward,
+        'status' => 'Reported',
+        'tracking_token' => $trackingToken,
+        'submitted_at' => date('Y-m-d H:i:s'),
+        'tracking_url' => getHomePageUrl()
+    ]);
+
     echo json_encode([
         "success" => true,
-        "message" => "Report submitted successfully.",
-        "ward"    => $ward
+        "message" => $emailSent
+            ? "Report submitted successfully. The tracking token has been sent to your email."
+            : "Report submitted successfully, but the tracking email could not be sent right now.",
+        "ward"    => $ward,
+        "email_sent" => $emailSent
     ]);
 } else {
     echo json_encode([

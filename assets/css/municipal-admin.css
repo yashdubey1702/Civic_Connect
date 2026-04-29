@@ -81,6 +81,24 @@
     border: 1px solid #e5e7eb;
 }
 
+#municipalMap .leaflet-container,
+#municipalMap .leaflet-pane,
+#municipalMap .leaflet-map-pane,
+#municipalMap .leaflet-overlay-pane,
+#municipalMap .leaflet-overlay-pane svg,
+#municipalMap .leaflet-overlay-pane path,
+#municipalMap .leaflet-interactive,
+#municipalMap .bmc-boundary,
+#municipalMap .ward-boundary {
+    outline: none !important;
+}
+
+#municipalMap .leaflet-interactive:focus,
+#municipalMap .bmc-boundary:focus,
+#municipalMap .ward-boundary:focus {
+    outline: none !important;
+}
+
 /* Map Legend */
 .map-legend {
     position: absolute;

@@ -241,13 +241,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_submit'])) {
                 <h1>My Profile</h1>
             </div>
             <div class="header-right">
-                <div class="theme-toggle-container">
-                    <div class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-sun"></i>
-                        <i class="fas fa-moon"></i>
-                        <span class="toggle-thumb"></span>
-                    </div>
-                </div>
                 <button class="new-report-btn" onclick="location.href='map_reports.php'">
                     <i class="fas fa-plus"></i>
                     New Report
@@ -432,6 +425,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_submit'])) {
         </div>
     </main>
     <script src="assets/js/profile.js"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

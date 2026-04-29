@@ -70,6 +70,10 @@ class Auth {
         return $this->getRole() === 'citizen';
     }
 
+    public function isVolunteer() {
+        return $this->getRole() === 'volunteer';
+    }
+
     public function isWardAdmin() {
         return $this->getRole() === 'ward_admin';
     }
@@ -103,6 +107,11 @@ class Auth {
         }
 
         if ($required_type === 'citizen' && !$this->isCitizen()) {
+            header("Location: /town_issues/unauthorized.php");
+            exit;
+        }
+
+        if ($required_type === 'volunteer' && !$this->isVolunteer()) {
             header("Location: /town_issues/unauthorized.php");
             exit;
         }

@@ -102,6 +102,7 @@ if (!empty($where)) {
 $sql = "
     SELECT 
         id,
+        user_id,
         latitude,
         longitude,
         category,
@@ -127,5 +128,20 @@ $result = $stmt->get_result();
 $reports = $result->fetch_all(MYSQLI_ASSOC);
 
 $stmt->close();
+
+$reports = array_map(function ($report) {
+    if (!empty($report['user_id'])) {
+        $identity = 'user:' . $report['user_id'];
+    } elseif (!empty($report['email'])) {
+        $identity = 'email:' . strtolower((string)$report['email']);
+    } else {
+        $identity = 'report:' . $report['id'];
+    }
+
+    $report['reporter_key'] = hash('sha256', $identity);
+    unset($report['user_id'], $report['email']);
+
+    return $report;
+}, $reports);
 
 echo json_encode($reports);

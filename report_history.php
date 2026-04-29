@@ -289,6 +289,7 @@ $stmt->close();
     </div>
 
     <script src="assets/js/report_history.js?v=3"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

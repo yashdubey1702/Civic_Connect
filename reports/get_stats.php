@@ -13,10 +13,16 @@ $database = new Database();
 $db = $database->getConnection(); // mysqli
 $auth = new Auth($db);
 
+if (!$auth->isLoggedIn() || !$auth->isAdmin()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized access']);
+    exit;
+}
+
 // ----------------------------------
 // STEP 1: Determine ward from session (for municipal admin)
 // ----------------------------------
-$ward =$_SESSION['ward'];
+$ward = $auth->isWardAdmin() ? strtoupper((string)$auth->getWard()) : '';
 
 // if ($auth->isMunicipalAdmin()) {
 //     $ward = trim($auth->getWard()); // e.g., "W12"
@@ -32,7 +38,7 @@ $whereClause = '';
 $bindValues  = [];
 $bindTypes   = '';
 
-if (!empty($ward)) {
+if ($ward !== '') {
     // Compare uppercase trimmed strings
     $whereClause = "WHERE UPPER(TRIM(municipality)) = ?";
     $bindValues[] = $ward;

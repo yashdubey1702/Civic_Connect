@@ -11,6 +11,7 @@ function esc(value) {
 
 let adminMap = null;
 let bmcLayer = null;
+let wardLayer = null;
 let mapMarkers = [];
 let currentPage = 1;
 let perPage = 10;
@@ -112,19 +113,40 @@ function initMap() {
         maxZoom: 18
     }).addTo(adminMap);
 
-    fetch('data/bmc_boundary.geojson')
+    fetch('data/Wards.geojson')
+        .then(response => response.json())
+        .then(data => {
+            wardLayer = L.geoJSON(data, {
+                interactive: false,
+                style: {
+                    color: '#f6a44b',
+                    weight: 1.25,
+                    opacity: 0.62,
+                    fillOpacity: 0,
+                    fillColor: 'transparent',
+                    className: 'ward-boundary'
+                }
+            }).addTo(adminMap);
+        })
+        .catch(error => {
+            console.error('Ward boundary load failed:', error);
+        })
+        .then(() => fetch('data/bmc_boundary.geojson'))
         .then(response => response.json())
         .then(data => {
             bmcLayer = L.geoJSON(data, {
                 style: {
                     color: '#ff7800',
-                    weight: 3,
+                    weight: 2.5,
+                    opacity: 0.95,
                     fillOpacity: 0,
-                    fillColor: 'transparent'
+                    fillColor: 'transparent',
+                    className: 'bmc-boundary'
                 }
             }).addTo(adminMap);
 
             adminMap.fitBounds(bmcLayer.getBounds());
+            bmcLayer.bringToFront();
             loadMapReports();
         })
         .catch(error => {
@@ -291,6 +313,9 @@ function renderReportsTable(reports) {
                         </option>
                     `).join('')}
                 </select>
+                <a class="assign-volunteer-link" href="admin/assign_volunteer.php?report_id=${Number(report.id)}">
+                    Assign Volunteer
+                </a>
             </td>
         </tr>
     `).join('');

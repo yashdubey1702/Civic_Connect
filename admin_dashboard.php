@@ -15,23 +15,22 @@ $auth = new Auth($db);
 $auth->requireAuth('super_admin');
 
 // Get user info
-$email = $_SESSION['email'];
 $full_name = $_SESSION['full_name'];
-$user_type = $_SESSION['user_type'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrator Dashboard – CivicConnect Bhubaneswar</title>
+    <title>Administrator Dashboard - CivicConnect Bhubaneswar</title>
     <link rel="icon" href="assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="assets/css/admin-mobile.css"> 
+    <link rel="stylesheet" href="assets/css/admin-mobile.css">
 </head>
 <body>
 
@@ -46,13 +45,25 @@ $user_type = $_SESSION['user_type'];
             </div>
             <div class="gov-titles">
                 <h1>CivicConnect</h1>
-                <p class="tagline">Bhubaneswar Municipal Corporation • Administrator Dashboard</p>
+                <p class="tagline">Bhubaneswar Municipal Corporation - Administrator Dashboard</p>
             </div>
         </div>
         <div class="dashboard-controls">
             <span class="admin-welcome">
-                Welcome, <?php echo htmlspecialchars($full_name); ?> (<?php echo $user_type; ?>)
+                Welcome, <?php echo htmlspecialchars($full_name); ?>
             </span>
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="tools/maintenance/debug_municipality.php" class="admin-nav-link">Maintenance</a>
+                <a href="admin/volunteers.php" class="admin-nav-link">Volunteers</a>
+                <a href="admin/volunteer_tasks.php" class="admin-nav-link">Volunteer Tasks</a>
+            </nav>
+            <div class="theme-toggle-container">
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <span class="toggle-thumb"></span>
+                </div>
+            </div>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
@@ -67,30 +78,29 @@ $user_type = $_SESSION['user_type'];
         </p>
     </div>
 
-
     <!-- Statistics Cards -->
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalReports">0</div>
-                <div class="stat-label">Total Reports</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="reportedCount">0</div>
-                <div class="stat-label">Reported</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="acknowledgedCount">0</div>
-                <div class="stat-label">Acknowledged</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="inProgressCount">0</div>
-                <div class="stat-label">In Progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="resolvedCount">0</div>
-                <div class="stat-label">Resolved</div>
-            </div>
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-number" id="totalReports">0</div>
+            <div class="stat-label">Total Reports</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number" id="reportedCount">0</div>
+            <div class="stat-label">Reported</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="acknowledgedCount">0</div>
+            <div class="stat-label">Acknowledged</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="inProgressCount">0</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="resolvedCount">0</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+    </div>
 
     <!-- Filters -->
     <div class="filter-controls" style="margin-top: 1rem;">
@@ -138,9 +148,8 @@ $user_type = $_SESSION['user_type'];
 
     <!-- Layout -->
     <div class="dashboard-layout">
-
         <!-- Map -->
-       <div class="map-section">
+        <div class="map-section">
             <h2>Reports Map</h2>
             <p>All reported civic issues within Bhubaneswar city limits</p>
 
@@ -149,8 +158,7 @@ $user_type = $_SESSION['user_type'];
             </div>
 
             <div class="map-wrapper">
-                 <div id="adminMap">
-                    <!-- Map Legend -->
+                <div id="adminMap">
                     <div class="map-legend">
                         <h4>Status Legend</h4>
                         <div class="legend-item">
@@ -189,22 +197,22 @@ $user_type = $_SESSION['user_type'];
             </div>
             <div id="pagination" class="pagination-container"></div>
         </div>
-
     </div>
 </div>
 
 <!-- Footer -->
 <footer class="gov-footer">
     <div class="footer-content">
-        <p>Bhubaneswar Municipal Corporation – CivicConnect</p>
+        <p>Bhubaneswar Municipal Corporation - CivicConnect</p>
         <div class="footer-bottom">
-            <p>© 2024 Authorized Administrative Access</p>
+            <p>&copy; <?= date('Y') ?> Authorized Administrative Access</p>
         </div>
     </div>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-<script src="assets/js/admin-dashboard.js?v=1.1"></script>
+<script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/admin-dashboard.js?v=1.2"></script>
 </body>
 </html>

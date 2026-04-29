@@ -84,7 +84,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         if (activeUsers) {
             const users = new Set(
                 reports
-                    .map(report => (report.email || '').trim().toLowerCase())
+                    .map(report => (report.reporter_key || '').trim())
                     .filter(Boolean)
             );
             activeUsers.textContent = users.size;
@@ -174,7 +174,10 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         if (lngInput) lngInput.value = lng;
         if (loginPrompt) loginPrompt.style.display = 'block';
         if (reportForm) reportForm.style.display = 'none';
-        if (modal) modal.style.display = 'block';
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
     }
 
     function isInsideBoundary(lat, lng) {
@@ -188,6 +191,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
     function closeModal() {
         if (modal) modal.style.display = 'none';
         if (reportForm) reportForm.reset();
+        document.body.style.overflow = '';
     }
 
     function handleCheckboxSelection(clickedCheckbox, groupName) {
@@ -217,6 +221,62 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         });
 
         loadExistingReports();
+    }
+
+    function setTrackingResult(message, type) {
+        const result = document.getElementById('trackingResult');
+        if (!result) return;
+
+        result.className = `tracking-result ${type}`;
+        result.innerHTML = message;
+    }
+
+    function initStatusTracker() {
+        const form = document.getElementById('statusTrackerForm');
+        const input = document.getElementById('trackingToken');
+
+        if (!form || !input) return;
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+
+            const token = input.value.trim().toUpperCase();
+            input.value = token;
+
+            if (!token) {
+                setTrackingResult('Please enter your tracking token.', 'error');
+                return;
+            }
+
+            const body = new URLSearchParams();
+            body.set('tracking_token', token);
+
+            fetch('reports/track_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString(),
+                credentials: 'same-origin'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        setTrackingResult(escapeHtml(data.message || 'Unable to find this report.'), 'error');
+                        return;
+                    }
+
+                    const color = getStatusColor(data.status);
+                    setTrackingResult(
+                        `<span class="tracking-status-badge"><i class="fas fa-circle" style="color:${color};"></i>Status: ${escapeHtml(data.status)}</span>`,
+                        'success'
+                    );
+                })
+                .catch(error => {
+                    console.error('Tracking lookup failed:', error);
+                    setTrackingResult('Unable to check status right now.', 'error');
+                });
+        });
     }
 
     function initPublicMap() {
@@ -272,7 +332,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
             const { lat, lng } = event.latlng;
 
             if (!isInsideBoundary(lat, lng)) {
-                alert('Reports can only be submitted from within Bhubaneswar city.');
+                showLoginPrompt(lat, lng);
                 return;
             }
 
@@ -294,5 +354,8 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
     window.clearFilters = clearFilters;
     window.showMapHelp = showMapHelp;
 
-    document.addEventListener('DOMContentLoaded', initPublicMap);
+    document.addEventListener('DOMContentLoaded', () => {
+        initPublicMap();
+        initStatusTracker();
+    });
 })();

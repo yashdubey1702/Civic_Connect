@@ -164,6 +164,7 @@ $auth->requireAuth('citizen');
 </main>
 
 <script src="assets/js/help.js?v=3"></script>
+<script src="assets/js/theme-toggle.js"></script>
 <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

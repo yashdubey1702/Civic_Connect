@@ -7,12 +7,42 @@ $db = $database->getConnection(); // mysqli
 
 $error = '';
 $success = '';
+$default_account_type = ($_GET['account_type'] ?? '') === 'volunteer' ? 'volunteer' : 'citizen';
+$ward_options = array_map(function($wardNumber) {
+    return 'W' . $wardNumber;
+}, range(1, 67));
+$skill_options = [
+    'Cleaning',
+    'Waste Management',
+    'Plumbing',
+    'Electrical',
+    'Road Repair Support',
+    'Gardening / Tree Care',
+    'First Aid',
+    'Crowd Coordination',
+    'Documentation / Photos',
+    'General Volunteer'
+];
+$availability_options = [
+    'Weekends',
+    'Weekday Mornings',
+    'Weekday Afternoons',
+    'Weekday Evenings',
+    'Flexible',
+    'Emergency / On Call'
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
     $confirm_password = trim($_POST['confirm_password'] ?? '');
     $full_name = trim($_POST['full_name'] ?? '');
+    $account_type = trim($_POST['account_type'] ?? 'citizen');
+    $phone = trim($_POST['phone'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $ward_no = trim($_POST['ward_no'] ?? '');
+    $skills = trim($_POST['skills'] ?? '');
+    $availability = trim($_POST['availability'] ?? '');
 
     // Validation
     if ($full_name === '' || $email === '' || $password === '' || $confirm_password === '') {
@@ -23,6 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Passwords do not match.";
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters.";
+    } elseif (!in_array($account_type, ['citizen', 'volunteer'], true)) {
+        $error = "Invalid account type.";
+    } elseif ($account_type === 'volunteer' && ($phone === '' || $address === '' || $ward_no === '' || $skills === '' || $availability === '')) {
+        $error = "All volunteer details are required.";
     } else {
         // Check if email already exists
         $check_query = "SELECT id FROM users WHERE email = ?";
@@ -34,22 +68,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result->num_rows > 0) {
             $error = "Email already exists. Please use a different email.";
         } else {
-            // Insert new user
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $db->begin_transaction();
 
-            $insert_query = "INSERT INTO users (email, password_hash, full_name, user_type)
-                             VALUES (?, ?, ?, 'citizen')";
-            $insert_stmt = $db->prepare($insert_query);
-            $insert_stmt->bind_param("sss", $email, $hashed_password, $full_name);
+            try {
+                $insert_query = "INSERT INTO users (email, password_hash, full_name, user_type)
+                                 VALUES (?, ?, ?, ?)";
+                $insert_stmt = $db->prepare($insert_query);
+                $insert_stmt->bind_param("ssss", $email, $hashed_password, $full_name, $account_type);
 
-            if ($insert_stmt->execute()) {
-                header("Location: login.php?registered=1");
+                if (!$insert_stmt->execute()) {
+                    throw new RuntimeException("User registration failed.");
+                }
+
+                $newUserId = $insert_stmt->insert_id;
+                $insert_stmt->close();
+
+                if ($account_type === 'volunteer') {
+                    $profile_query = "
+                        INSERT INTO volunteer_profiles
+                            (user_id, full_name, phone, address, ward_no, skills, availability, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
+                    ";
+                    $profile_stmt = $db->prepare($profile_query);
+                    $profile_stmt->bind_param("issssss", $newUserId, $full_name, $phone, $address, $ward_no, $skills, $availability);
+
+                    if (!$profile_stmt->execute()) {
+                        throw new RuntimeException("Volunteer profile creation failed.");
+                    }
+
+                    $profile_stmt->close();
+                }
+
+                $db->commit();
+                if ($account_type === 'volunteer') {
+                    header("Location: login.php?volunteer_registered=1");
+                } else {
+                    header("Location: login.php?registered=1");
+                }
                 exit;
-            } else {
+            } catch (Throwable $e) {
+                $db->rollback();
                 $error = "Registration failed. Please try again.";
             }
-
-            $insert_stmt->close();
         }
 
         $check_stmt->close();
@@ -125,6 +186,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="POST" action="register.php" class="auth-form">
                     <div class="form-group">
+                        <label>Account Type</label>
+                        <div class="account-type-options">
+                            <label class="checkbox-container">
+                                <input type="radio" name="account_type" value="citizen" <?php echo (($_POST['account_type'] ?? $default_account_type) !== 'volunteer') ? 'checked' : ''; ?> onchange="toggleVolunteerFields()">
+                                <span class="checkmark"></span>
+                                Citizen
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="radio" name="account_type" value="volunteer" <?php echo (($_POST['account_type'] ?? $default_account_type) === 'volunteer') ? 'checked' : ''; ?> onchange="toggleVolunteerFields()">
+                                <span class="checkmark"></span>
+                                Volunteer
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="full_name">Full Name</label>
                         <div class="input-with-icon">
                             <i class="fas fa-user"></i>
@@ -139,6 +216,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-envelope"></i>
                             <input type="email" class="form-control" id="email" name="email" 
                                    placeholder="Enter your email" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                        </div>
+                    </div>
+
+                    <div id="volunteerFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-phone"></i>
+                                <input type="text" class="form-control volunteer-required" id="phone" name="phone"
+                                       placeholder="Enter your phone number" value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ward_no">Preferred Ward</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <select class="form-control volunteer-required" id="ward_no" name="ward_no">
+                                    <option value="">Select your ward</option>
+                                    <?php foreach ($ward_options as $ward_option): ?>
+                                        <option value="<?php echo htmlspecialchars($ward_option); ?>" <?php echo (($_POST['ward_no'] ?? '') === $ward_option) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($ward_option); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="skills">Skills</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-tools"></i>
+                                <select class="form-control volunteer-required" id="skills" name="skills">
+                                    <option value="">Select your primary skill</option>
+                                    <?php foreach ($skill_options as $skill_option): ?>
+                                        <option value="<?php echo htmlspecialchars($skill_option); ?>" <?php echo (($_POST['skills'] ?? '') === $skill_option) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($skill_option); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="availability">Availability</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-calendar-check"></i>
+                                <select class="form-control volunteer-required" id="availability" name="availability">
+                                    <option value="">Select availability</option>
+                                    <?php foreach ($availability_options as $availability_option): ?>
+                                        <option value="<?php echo htmlspecialchars($availability_option); ?>" <?php echo (($_POST['availability'] ?? '') === $availability_option) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($availability_option); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea class="form-control volunteer-required" id="address" name="address" rows="3" placeholder="Enter your address"><?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?></textarea>
                         </div>
                     </div>
                     
@@ -198,6 +336,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 eyeIcon.classList.add('fa-eye');
             }
         }
+
+        function toggleVolunteerFields() {
+            const selected = document.querySelector('input[name="account_type"]:checked');
+            const fields = document.getElementById('volunteerFields');
+            const isVolunteer = selected && selected.value === 'volunteer';
+            fields.style.display = isVolunteer ? 'block' : 'none';
+            document.querySelectorAll('.volunteer-required').forEach((field) => {
+                field.required = isVolunteer;
+            });
+        }
+
+        toggleVolunteerFields();
 
         // Password strength indicator
         document.getElementById('password').addEventListener('input', function() {

@@ -206,6 +206,29 @@
         min-height: 320px;
     }
 
+    .map-search-panel {
+        grid-template-columns: minmax(0, 1fr) 44px 44px;
+        gap: 8px;
+    }
+
+    .map-search-box,
+    .map-icon-btn {
+        min-height: 44px;
+        height: 44px;
+    }
+
+    .map-icon-btn {
+        width: 44px;
+    }
+
+    .map-search-box {
+        padding: 0 12px;
+    }
+
+    .map-search-status {
+        font-size: 12px;
+    }
+
     .map-legend {
         max-width: min(180px, calc(100vw - 48px));
         font-size: 12px;

@@ -45,6 +45,17 @@ if (!$reportId || !$category || !$description || $lat === null || $lng === null)
     exit;
 }
 
+$ownerCheck = $db->prepare("SELECT id FROM reports WHERE id = ? AND user_id = ? LIMIT 1");
+$ownerCheck->bind_param("ii", $reportId, $userId);
+$ownerCheck->execute();
+$ownerCheck->store_result();
+if ($ownerCheck->num_rows !== 1) {
+    $ownerCheck->close();
+    echo json_encode(["success" => false, "message" => "Report was not found or you are not allowed to update it"]);
+    exit;
+}
+$ownerCheck->close();
+
 /* =========================
    LOCATION VALIDATION
    ========================= */
@@ -159,7 +170,7 @@ if ($stmt->execute()) {
 } else {
     echo json_encode([
         "success" => false,
-        "message" => "Failed to update report"
+        "message" => "Report was not found or you are not allowed to update it"
     ]);
 }
 

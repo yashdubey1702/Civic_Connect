@@ -29,9 +29,9 @@ if (
     exit;
 }
 
-$reportId = $input['id'] ?? null;
+$reportId = (int)($input['id'] ?? 0);
 
-if (!$reportId) {
+if ($reportId <= 0) {
     echo json_encode(["success" => false, "message" => "Invalid report ID"]);
     exit;
 }
@@ -40,10 +40,10 @@ $query = "DELETE FROM reports WHERE id = ? AND user_id = ?";
 $stmt = $db->prepare($query);
 $stmt->bind_param("ii", $reportId, $userId);
 
-if ($stmt->execute()) {
+if ($stmt->execute() && $stmt->affected_rows > 0) {
     echo json_encode(["success" => true, "message" => "Report deleted"]);
 } else {
-    echo json_encode(["success" => false, "message" => "Delete failed"]);
+    echo json_encode(["success" => false, "message" => "Report was not found or you are not allowed to delete it"]);
 }
 
 $stmt->close();

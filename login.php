@@ -12,7 +12,9 @@ $error = '';
 $success = '';
 
 // Check if user was redirected from successful registration
-if (isset($_GET['registered']) && $_GET['registered'] == '1') {
+if (isset($_GET['volunteer_registered']) && $_GET['volunteer_registered'] == '1') {
+    $success = "Volunteer registration submitted. Admin approval is required before tasks can be assigned.";
+} elseif (isset($_GET['registered']) && $_GET['registered'] == '1') {
     $success = "Registration successful! Please login with your credentials.";
 }
 
@@ -37,6 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } elseif ($role === 'ward_admin') {
                 header("Location: municipal_admin_dashboard.php");
+
+            } elseif ($role === 'volunteer') {
+                header("Location: volunteers/dashboard.php");
 
             } else {
                 header("Location: user_dashboard.php");
