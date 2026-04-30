@@ -59,6 +59,7 @@ $adminRoleLabel = $auth->isWardAdmin() ? "Ward {$safeWardLabel} Admin" : "Munici
     <link rel="stylesheet" href="assets/css/admin-dashboard.css">
     <link rel="stylesheet" href="assets/css/admin-mobile.css">
     <link rel="stylesheet" href="assets/css/municipal-admin.css">
+    <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 
 <body>
@@ -89,6 +90,10 @@ $adminRoleLabel = $auth->isWardAdmin() ? "Ward {$safeWardLabel} Admin" : "Munici
             <span class="admin-welcome">
                 Welcome, <?= htmlspecialchars($full_name, ENT_QUOTES, 'UTF-8') ?> (<?= $adminRoleLabel ?>)
             </span>
+            <button class="notification-btn" type="button" aria-label="Open notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" hidden>0</span>
+            </button>
             <a href="admin/volunteers.php" class="logout-btn">Volunteers</a>
             <a href="admin/volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a>
             <a href="logout.php" class="logout-btn">Logout</a>
@@ -240,6 +245,7 @@ $adminRoleLabel = $auth->isWardAdmin() ? "Ward {$safeWardLabel} Admin" : "Munici
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
 <script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/notifications.js?v=1"></script>
 <script src="assets/js/municipal-admin-dashboard.js?v=2"></script>
 
 </body>

@@ -861,31 +861,34 @@ body {
         linear-gradient(135deg, rgba(67, 97, 238, 0.08), rgba(40, 167, 69, 0.06)),
         #f8fafc;
     color: #1f2937;
-    padding: 2.2rem 0;
-    margin-top: 4rem;
+    padding: 0;
+    margin-top: 0;
     border-top: 1px solid #e5e7eb;
 }
 
 .footer-content {
-    max-width: 1720px;
-    margin: 0 auto;
-    padding: 0 2.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .footer-main {
     display: flex;
     align-items: stretch;
     justify-content: space-between;
-    gap: 2rem;
-    padding: 1.35rem;
-    border: 1px solid #dbe3ef;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.86);
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    gap: 1.5rem;
+    width: 100%;
+    padding: 1.35rem 2.5rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .footer-agency {
-    max-width: 1120px;
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
 }
 
 .footer-agency p {
@@ -902,31 +905,36 @@ body {
 
 .footer-links {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin: 0.85rem 0;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0.8rem 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
 }
 
 .footer-links a {
     display: inline-flex;
     align-items: center;
-    min-height: 34px;
-    padding: 0 0.8rem;
-    border: 1px solid #dbe3ef;
-    border-radius: 999px;
+    min-height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
     color: #273cba;
-    background: #ffffff;
+    background: transparent;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 650;
     line-height: 1;
-    transition: var(--transition);
+    white-space: nowrap;
+    transition: color 0.18s ease, text-decoration-color 0.18s ease;
+    text-underline-offset: 4px;
+    text-decoration-color: transparent;
 }
 
 .footer-links a:hover {
-    color: #ffffff;
-    background: var(--primary);
-    border-color: var(--primary);
-    transform: translateY(-1px);
+    color: var(--primary-dark);
+    text-decoration: underline;
+    text-decoration-color: currentColor;
 }
 
 .footer-divider::before {

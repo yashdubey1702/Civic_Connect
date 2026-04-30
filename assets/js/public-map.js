@@ -279,6 +279,24 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         });
     }
 
+    function initVisitorCount() {
+        const counter = document.getElementById('footerVisitors');
+        if (!counter) return;
+
+        fetch('visitor_count.php', {
+            credentials: 'same-origin',
+            cache: 'no-store'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.success || typeof data.count === 'undefined') return;
+                counter.textContent = Number(data.count).toLocaleString('en-IN');
+            })
+            .catch(error => {
+                console.error('Visitor counter failed:', error);
+            });
+    }
+
     function initPublicMap() {
         const mapContainer = document.getElementById('map');
 
@@ -355,6 +373,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
     window.showMapHelp = showMapHelp;
 
     document.addEventListener('DOMContentLoaded', () => {
+        initVisitorCount();
         initPublicMap();
         initStatusTracker();
     });

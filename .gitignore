@@ -3,6 +3,7 @@
 # Local/generated files
 *.log
 *.tmp
+data/visitor_count.json
 .DS_Store
 Thumbs.db
 

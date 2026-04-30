@@ -7,25 +7,75 @@ require_once __DIR__ . '/../../PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/../../PHPMailer/src/Exception.php';
 
+function civicconnect_load_env_once()
+{
+    static $loaded = false;
+
+    if ($loaded) {
+        return;
+    }
+
+    $loaded = true;
+    $envFile = __DIR__ . '/../../.env';
+
+    if (!is_readable($envFile)) {
+        return;
+    }
+
+    $values = parse_ini_file($envFile, false, INI_SCANNER_RAW);
+
+    if (!is_array($values)) {
+        return;
+    }
+
+    foreach ($values as $key => $value) {
+        if (getenv((string)$key) === false) {
+            putenv($key . '=' . $value);
+        }
+        $_ENV[(string)$key] = $value;
+    }
+}
+
+function civicconnect_env($key, $default = '')
+{
+    civicconnect_load_env_once();
+
+    $value = getenv($key);
+    return $value === false || $value === '' ? $default : $value;
+}
+
+function configureCivicconnectMailer(PHPMailer $mail)
+{
+    $username = civicconnect_env('SMTP_USERNAME');
+    $password = civicconnect_env('SMTP_PASSWORD');
+
+    if ($username === '' || $password === '') {
+        return false;
+    }
+
+    $mail->isSMTP();
+    $mail->Host = civicconnect_env('SMTP_HOST', 'smtp.gmail.com');
+    $mail->SMTPAuth = true;
+    $mail->Username = $username;
+    $mail->Password = $password;
+    $mail->SMTPSecure = civicconnect_env('SMTP_SECURE', 'tls');
+    $mail->Port = (int)civicconnect_env('SMTP_PORT', '587');
+    $mail->CharSet = 'UTF-8';
+
+    return true;
+}
+
 function sendOTP($email,$otp){
 
 $mail = new PHPMailer(true);
 
 try {
 
-$mail->isSMTP();
-$mail->Host = 'smtp.gmail.com';
-$mail->SMTPAuth = true;
+if (!configureCivicconnectMailer($mail)) {
+return false;
+}
 
-$mail->Username = 'civicconnectsit@gmail.com';
-$mail->Password = 'rddcuqhqormwayqg';
-
-$mail->SMTPSecure = 'tls';
-$mail->Port = 587;
-
-$mail->CharSet = 'UTF-8';
-
-$mail->setFrom('civicconnectsit@gmail.com','CivicConnect');
+$mail->setFrom(civicconnect_env('SMTP_FROM_EMAIL', civicconnect_env('SMTP_USERNAME')), civicconnect_env('SMTP_FROM_NAME', 'CivicConnect'));
 $mail->addAddress($email);
 
 $mail->isHTML(true);
@@ -61,18 +111,11 @@ function sendReportTrackingEmail($email, array $report)
     $mail = new PHPMailer(true);
 
     try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
+        if (!configureCivicconnectMailer($mail)) {
+            return false;
+        }
 
-        $mail->Username = 'civicconnectsit@gmail.com';
-        $mail->Password = 'rddcuqhqormwayqg';
-
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-        $mail->CharSet = 'UTF-8';
-
-        $mail->setFrom('civicconnectsit@gmail.com', 'CivicConnect');
+        $mail->setFrom(civicconnect_env('SMTP_FROM_EMAIL', civicconnect_env('SMTP_USERNAME')), civicconnect_env('SMTP_FROM_NAME', 'CivicConnect'));
         $mail->addAddress($email);
         $mail->isHTML(true);
 

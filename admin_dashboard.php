@@ -31,6 +31,7 @@ $full_name = $_SESSION['full_name'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/admin-dashboard.css">
     <link rel="stylesheet" href="assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 <body>
 
@@ -57,6 +58,10 @@ $full_name = $_SESSION['full_name'];
                 <a href="admin/volunteers.php" class="admin-nav-link">Volunteers</a>
                 <a href="admin/volunteer_tasks.php" class="admin-nav-link">Volunteer Tasks</a>
             </nav>
+            <button class="notification-btn" type="button" aria-label="Open notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" hidden>0</span>
+            </button>
             <div class="theme-toggle-container">
                 <div class="theme-toggle" id="themeToggle">
                     <i class="fas fa-sun"></i>
@@ -213,6 +218,7 @@ $full_name = $_SESSION['full_name'];
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
 <script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/notifications.js?v=1"></script>
 <script src="assets/js/admin-dashboard.js?v=1.2"></script>
 </body>
 </html>

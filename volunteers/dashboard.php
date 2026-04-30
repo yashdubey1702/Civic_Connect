@@ -57,6 +57,7 @@ $stmt->close();
     <link rel="stylesheet" href="../assets/css/user-dashboard.css">
     <link rel="stylesheet" href="../assets/css/mobile.css?v=3">
     <link rel="stylesheet" href="../assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
 </head>
 <body class="volunteer-shell">
 <nav class="user-sidebar">
@@ -94,6 +95,10 @@ $stmt->close();
                     <span class="toggle-thumb"></span>
                 </div>
             </div>
+            <button class="notification-btn" type="button" aria-label="Open notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" hidden>0</span>
+            </button>
             <?= badge($profile['status']) ?>
             <a class="btn-volunteer-secondary" href="profile.php"><i class="fas fa-user-edit"></i> Profile</a>
         </div>
@@ -153,6 +158,7 @@ $stmt->close();
     </div>
 </main>
 <script src="../assets/js/theme-toggle.js"></script>
+<script src="../assets/js/notifications.js?v=1"></script>
 <script src="../assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

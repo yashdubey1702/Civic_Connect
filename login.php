@@ -10,6 +10,30 @@ $auth = new Auth($db);
 
 $error = '';
 $success = '';
+$rememberCookie = 'civicconnect_remember_email';
+$rememberCookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+$rememberCookiePath = $rememberCookiePath === '' ? '/' : $rememberCookiePath;
+$rememberedEmail = trim($_COOKIE[$rememberCookie] ?? '');
+
+function setRememberedEmailCookie($cookieName, $path, $email) {
+    setcookie($cookieName, $email, [
+        'expires' => time() + (60 * 60 * 24 * 30),
+        'path' => $path,
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+}
+
+function clearRememberedEmailCookie($cookieName, $path) {
+    setcookie($cookieName, '', [
+        'expires' => time() - 3600,
+        'path' => $path,
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+}
 
 // Check if user was redirected from successful registration
 if (isset($_GET['volunteer_registered']) && $_GET['volunteer_registered'] == '1') {
@@ -22,12 +46,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
+    $rememberMe = isset($_POST['remember_me']);
+
+    if (!$rememberMe) {
+        clearRememberedEmailCookie($rememberCookie, $rememberCookiePath);
+    }
 
     if (empty($email) || empty($password)) {
         $error = "Please enter both email and password.";
     } else {
 
         if ($auth->login($email, $password)) {
+            if ($rememberMe) {
+                setRememberedEmailCookie($rememberCookie, $rememberCookiePath, $email);
+            }
 
             $role = $_SESSION['user_type'] ?? '';
 
@@ -54,6 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$emailValue = isset($_POST['email']) ? trim($_POST['email']) : $rememberedEmail;
+$rememberChecked = isset($_POST['remember_me']) || ($_SERVER['REQUEST_METHOD'] !== 'POST' && $rememberedEmail !== '');
 ?>
 
 <!DOCTYPE html>
@@ -127,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="input-with-icon">
                             <i class="fas fa-envelope"></i>
                             <input type="email" class="form-control" id="email" name="email" 
-                                   placeholder="Enter your email" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                                   placeholder="Enter your email" autocomplete="email" required value="<?php echo htmlspecialchars($emailValue, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                     </div>
                     
@@ -136,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="input-with-icon password-field">
                             <i class="fas fa-lock"></i>
                             <input type="password" class="form-control" id="password" name="password" 
-                                   placeholder="Enter your password" required>
+                                   placeholder="Enter your password" autocomplete="current-password" required>
                             <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -144,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-options">
                         <label class="checkbox-container">
-                            <input type="checkbox" id="rememberMe">
+                            <input type="checkbox" id="rememberMe" name="remember_me" value="1" <?php echo $rememberChecked ? 'checked' : ''; ?>>
                             <span class="checkmark"></span>
                             Remember me
                         </label>

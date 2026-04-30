@@ -38,6 +38,7 @@ $stmt->close();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/user-dashboard.css">
     <link rel="stylesheet" href="assets/css/mobile.css?v=3">
+    <link rel="stylesheet" href="assets/css/notifications.css">
 
 <style>
 .leaflet-container {
@@ -153,9 +154,9 @@ $stmt->close();
                 New Report
             </button>
             <div class="header-actions">
-                <button class="notification-btn">
+                <button class="notification-btn" type="button" aria-label="Open notifications">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">2</span>
+                    <span class="notification-badge" hidden>0</span>
                 </button>
             </div>
         </div>
@@ -257,6 +258,7 @@ $stmt->close();
     <script src="assets/js/map-common.js?v=2"></script>
     <script src="assets/js/user-dashboard.js?v=4"></script>
     <script src="assets/js/theme-toggle.js"></script>
+    <script src="assets/js/notifications.js?v=1"></script>
     <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

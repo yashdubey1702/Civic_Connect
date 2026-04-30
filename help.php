@@ -24,6 +24,7 @@ $auth->requireAuth('citizen');
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/user-dashboard.css">
     <link rel="stylesheet" href="assets/css/mobile.css?v=3">
+    <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 <body>
 
@@ -98,6 +99,12 @@ $auth->requireAuth('citizen');
             <button class="new-report-btn" onclick="location.href='map_reports.php'">
                 <i class="fas fa-plus"></i> New Report
             </button>
+            <div class="header-actions">
+                <button class="notification-btn" type="button" aria-label="Open notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" hidden>0</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -165,6 +172,7 @@ $auth->requireAuth('citizen');
 
 <script src="assets/js/help.js?v=3"></script>
 <script src="assets/js/theme-toggle.js"></script>
+<script src="assets/js/notifications.js?v=1"></script>
 <script src="assets/js/sidebar.js?v=3"></script>
 </body>
 </html>
