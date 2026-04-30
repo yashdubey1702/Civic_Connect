@@ -1,14 +1,20 @@
 <?php
 
-function h($value) {
+// Escapes output before rendering it in HTML.
+function h($value)
+{
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function volunteerStatusClass($status) {
+// Converts a volunteer status into a CSS class name.
+function volunteerStatusClass($status)
+{
     return strtolower(str_replace(' ', '-', (string)$status));
 }
 
-function formatDateTime($value) {
+// Formats a database datetime for display.
+function formatDateTime($value)
+{
     if (empty($value)) {
         return '-';
     }
@@ -16,7 +22,9 @@ function formatDateTime($value) {
     return date('M j, Y g:i A', strtotime($value));
 }
 
-function truncateText($value, $length = 80) {
+// Shortens long text for compact table and card views.
+function truncateText($value, $length = 80)
+{
     $text = (string)$value;
 
     if (strlen($text) <= $length) {
@@ -26,16 +34,20 @@ function truncateText($value, $length = 80) {
     return substr($text, 0, max(0, $length - 3)) . '...';
 }
 
-function requireVolunteer($auth) {
+// Restricts the current page to approved volunteer users.
+function requireVolunteer($auth)
+{
     $auth->requireAuth();
 
     if (($auth->getRole() ?? '') !== 'volunteer') {
-        header("Location: /town_issues/unauthorized.php");
+        header("Location: /town_issues/public/unauthorized.php");
         exit;
     }
 }
 
-function getVolunteerProfile($db, $userId) {
+// Loads the volunteer profile for a user.
+function getVolunteerProfile($db, $userId)
+{
     $stmt = $db->prepare("
         SELECT vp.*, u.email, u.full_name AS user_full_name
         FROM volunteer_profiles vp
@@ -51,7 +63,9 @@ function getVolunteerProfile($db, $userId) {
     return $profile;
 }
 
-function ensureVolunteerProfile($db, $userId, $fullName) {
+// Creates a volunteer profile when one does not already exist.
+function ensureVolunteerProfile($db, $userId, $fullName)
+{
     $profile = getVolunteerProfile($db, $userId);
 
     if ($profile) {
@@ -69,7 +83,9 @@ function ensureVolunteerProfile($db, $userId, $fullName) {
     return getVolunteerProfile($db, $userId);
 }
 
-function adminCanAccessReport($db, $auth, $reportId) {
+// Checks whether the admin can view or update a report.
+function adminCanAccessReport($db, $auth, $reportId)
+{
     if (!$auth->isAdmin()) {
         return false;
     }
@@ -89,7 +105,9 @@ function adminCanAccessReport($db, $auth, $reportId) {
     return $allowed;
 }
 
-function adminCanAccessTask($db, $auth, $taskId) {
+// Checks whether the admin can view or update a volunteer task.
+function adminCanAccessTask($db, $auth, $taskId)
+{
     if (!$auth->isAdmin()) {
         return false;
     }
@@ -115,7 +133,9 @@ function adminCanAccessTask($db, $auth, $taskId) {
     return $allowed;
 }
 
-function adminCanAccessVolunteer($db, $auth, $profileId) {
+// Checks whether the admin can view or update a volunteer profile.
+function adminCanAccessVolunteer($db, $auth, $profileId)
+{
     if (!$auth->isAdmin()) {
         return false;
     }
@@ -135,7 +155,9 @@ function adminCanAccessVolunteer($db, $auth, $profileId) {
     return $allowed;
 }
 
-function addVolunteerTaskUpdate($db, $taskId, $userId, $oldStatus, $newStatus, $note = null, $imagePath = null) {
+// Records a status change for a volunteer task.
+function addVolunteerTaskUpdate($db, $taskId, $userId, $oldStatus, $newStatus, $note = null, $imagePath = null)
+{
     $stmt = $db->prepare("
         INSERT INTO volunteer_task_updates
             (task_id, user_id, old_status, new_status, note, image_path)
@@ -146,7 +168,9 @@ function addVolunteerTaskUpdate($db, $taskId, $userId, $oldStatus, $newStatus, $
     $stmt->close();
 }
 
-function updateReportStatusForVolunteerTask($db, $reportId, $taskStatus) {
+// Keeps the report status aligned with the volunteer task status.
+function updateReportStatusForVolunteerTask($db, $reportId, $taskStatus)
+{
     $reportStatus = null;
 
     if ($taskStatus === 'In Progress') {
@@ -165,6 +189,8 @@ function updateReportStatusForVolunteerTask($db, $reportId, $taskStatus) {
     $stmt->close();
 }
 
-function badge($status) {
+// Builds the HTML badge used to show a status.
+function badge($status)
+{
     return '<span class="status-badge status-' . h(volunteerStatusClass($status)) . '">' . h($status) . '</span>';
 }

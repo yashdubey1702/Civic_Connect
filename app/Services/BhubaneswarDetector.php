@@ -1,19 +1,21 @@
 <?php
 
+// Detects Bhubaneswar ward information from local boundary data.
 class BhubaneswarWardDetector
 {
     private $wards = [];
     private $geoJsonData = null;
 
+    // Initializes this object with the data it needs.
     public function __construct()
     {
         $this->loadGeoJSON();
         $this->setupWards();
     }
 
- 
-//LOAD GEOJSON
-     
+
+    //LOAD GEOJSON
+
     private function loadGeoJSON()
     {
         $path = __DIR__ . '/../../data/Wards.geojson';
@@ -22,9 +24,9 @@ class BhubaneswarWardDetector
         }
     }
 
-    
-//PREPARE WARDS
-    
+
+    //PREPARE WARDS
+
     private function setupWards()
     {
         if (!$this->geoJsonData || !isset($this->geoJsonData['features'])) {
@@ -34,7 +36,9 @@ class BhubaneswarWardDetector
         foreach ($this->geoJsonData['features'] as $feature) {
             $props = $feature['properties'];
 
-            if (!isset($props['wardno'])) continue;
+            if (!isset($props['wardno'])) {
+                continue;
+            }
 
             $key = strtolower(trim($props['wardno'])); // w9, w23
 
@@ -47,8 +51,8 @@ class BhubaneswarWardDetector
     }
 
 
-//       DETECT WARD
-      
+    //       DETECT WARD
+
     public function detectWard($lat, $lng)
     {
         foreach ($this->wards as $key => $ward) {
@@ -60,24 +64,27 @@ class BhubaneswarWardDetector
         return null;
     }
 
+    // Checks whether coordinates are inside Bhubaneswar boundaries.
     public function isWithinBhubaneswar($lat, $lng)
     {
         return $this->detectWard($lat, $lng) !== null;
     }
 
+    // Returns details for a single ward.
     public function getWardDetails($ward)
     {
         $key = strtolower(trim($ward));
         return $this->wards[$key] ?? null;
     }
 
+    // Returns all configured ward records.
     public function getAllWards()
     {
         return $this->wards;
     }
 
 
-//       POINT IN POLYGON
+    //       POINT IN POLYGON
 
     private function pointInPolygon($lat, $lng, $geometry)
     {
@@ -96,6 +103,7 @@ class BhubaneswarWardDetector
         return false;
     }
 
+    // Uses ray casting to test if a point is inside a ring.
     private function rayCast($lat, $lng, $coords)
     {
         $inside = false;

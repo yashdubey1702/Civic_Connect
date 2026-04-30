@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $report) {
                     }
 
                     $db->commit();
-                    header("Location: volunteer_tasks.php");
+                    header("Location: /town_issues/admin/volunteer_tasks.php");
                     exit;
                 } catch (Throwable $e) {
                     $db->rollback();
@@ -171,18 +171,18 @@ if ($report) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assign Volunteer - CivicConnect Admin</title>
-    <link rel="icon" href="../assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="../assets/css/admin-mobile.css">
-    <link rel="stylesheet" href="../assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
 </head>
 <body>
 <header class="gov-header">
     <div class="header-content">
         <div class="gov-brand"><div class="gov-logo"><svg viewBox="0 0 24 24"><path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" /></svg></div><div class="gov-titles"><h1>CivicConnect</h1><p class="tagline">Assign Volunteer</p></div></div>
-        <div class="dashboard-controls"><a href="volunteers.php" class="logout-btn">Volunteers</a><a href="volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="../logout.php" class="logout-btn">Logout</a></div>
+        <div class="dashboard-controls"><a href="/town_issues/admin/volunteers.php" class="logout-btn">Volunteers</a><a href="/town_issues/admin/volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="/town_issues/auth/logout.php" class="logout-btn">Logout</a></div>
     </div>
 </header>
 
@@ -236,13 +236,13 @@ if ($report) {
                     </div>
                     <div class="volunteer-actions" style="margin-top: 16px;">
                         <button class="btn-volunteer" type="submit" <?= empty($volunteers) ? 'disabled' : '' ?>>Assign Volunteer</button>
-                        <a class="btn-volunteer-secondary" href="volunteer_tasks.php">Cancel</a>
+                        <a class="btn-volunteer-secondary" href="/town_issues/admin/volunteer_tasks.php">Cancel</a>
                     </div>
                 </form>
             </div>
         </div>
     <?php endif; ?>
 </div>
-<script src="../assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
 </body>
 </html>

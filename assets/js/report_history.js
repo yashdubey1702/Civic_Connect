@@ -45,7 +45,7 @@ function confirmDelete(reportId) {
 }
 
 function deleteReport(reportId) {
-    fetch('reports/delete_report.php', {
+    fetch('/town_issues/reports/delete_report.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ function initUpdateForm() {
             formData.append('image', imageInput.files[0]);
         }
 
-        fetch('reports/update_report.php', {
+        fetch('/town_issues/reports/update_report.php', {
             method: 'POST',
             body: formData
         })

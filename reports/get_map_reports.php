@@ -1,4 +1,5 @@
 <?php
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../app/Core/Database.php';
 require_once __DIR__ . '/../app/Core/Auth.php';
@@ -53,16 +54,14 @@ if ($auth->isCitizen()) {
     $bindTypes .= "is";
 }
 
-/* Ward Admin → forced ward */
-elseif ($auth->isWardAdmin()) {
+/* Ward Admin → forced ward */ elseif ($auth->isWardAdmin()) {
     $adminWard = strtoupper($auth->getWard());
     $where[] = "municipality = ?";
     $bindValues[] = $adminWard;
     $bindTypes .= "s";
 }
 
-/* Municipal Admin → optional ward filter */
-elseif ($ward !== 'all' && $ward !== '') {
+/* Municipal Admin → optional ward filter */ elseif ($ward !== 'all' && $ward !== '') {
     $where[] = "municipality = ?";
     $bindValues[] = $ward;
     $bindTypes .= "s";

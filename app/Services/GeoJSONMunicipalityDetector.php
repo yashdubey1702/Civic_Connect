@@ -1,17 +1,19 @@
 <?php
 
+// Detects city wards using GeoJSON boundary data.
 class GeoJSONWardDetector
 {
     private $wards = [];
 
+    // Initializes this object with the data it needs.
     public function __construct()
     {
         $this->loadWardGeoJSON();
     }
 
 
-//       Load Bhubaneswar Ward Boundaries
-  
+    //       Load Bhubaneswar Ward Boundaries
+
     private function loadWardGeoJSON()
     {
         $path = __DIR__ . '/../../data/Wards.geojson';
@@ -44,7 +46,7 @@ class GeoJSONWardDetector
         }
     }
 
-//       Detect Ward for a Point
+    //       Detect Ward for a Point
 
     public function detectWard($latitude, $longitude)
     {
@@ -56,12 +58,13 @@ class GeoJSONWardDetector
         return null;
     }
 
+    // Checks whether coordinates are inside Bhubaneswar boundaries.
     public function isWithinBhubaneswar($latitude, $longitude)
     {
         return $this->detectWard($latitude, $longitude) !== null;
     }
 
-//       Geometry Logic
+    //       Geometry Logic
 
     private function pointInPolygon($lat, $lng, $geometry)
     {
@@ -79,6 +82,7 @@ class GeoJSONWardDetector
         return false;
     }
 
+    // Runs point-in-polygon checks against coordinate rings.
     private function pointInPolygonCoordinates($lat, $lng, $coordinates)
     {
         $x = $lng;

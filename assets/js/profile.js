@@ -17,20 +17,20 @@ function togglePasswordVisibility(fieldId) {
 
 function enableEditMode() {
     // Redirect to edit mode
-    window.location.href = 'profile.php?edit=true';
+    window.location.href = '/town_issues/user/profile.php?edit=true';
 }
 
 function disableEditMode() {
     // Redirect to view mode
-    window.location.href = 'profile.php';
+    window.location.href = '/town_issues/user/profile.php';
 }
 
 function showPasswordForm() {
-    window.location.href = 'profile.php?action=change-password';
+    window.location.href = '/town_issues/user/profile.php?action=change-password';
 }
 
 function showProfileForm() {
-    window.location.href = 'profile.php';
+    window.location.href = '/town_issues/user/profile.php';
 }
 
 // Form validation

@@ -112,7 +112,7 @@ function initMap() {
         maxZoom: 18
     }).addTo(municipalMap);
 
-    fetch('data/Wards.geojson')
+    fetch('/town_issues/data/Wards.geojson')
         .then(response => response.json())
         .then(data => {
             wardLayer = L.geoJSON(data, {
@@ -130,7 +130,7 @@ function initMap() {
         .catch(error => {
             console.error('Ward boundary load failed:', error);
         })
-        .then(() => fetch('data/bmc_boundary.geojson'))
+        .then(() => fetch('/town_issues/data/bmc_boundary.geojson'))
         .then(response => response.json())
         .then(data => {
             bmcLayer = L.geoJSON(data, {
@@ -175,7 +175,7 @@ function loadMapReports() {
         status: filters.status,
         category: filters.category
     });
-    const url = query ? `reports/get_map_reports.php?${query}` : 'reports/get_map_reports.php';
+    const url = query ? `/town_issues/reports/get_map_reports.php?${query}` : '/town_issues/reports/get_map_reports.php';
 
     fetch(url, { credentials: 'same-origin' })
         .then(response => response.json())
@@ -228,7 +228,7 @@ function loadReports(page = 1) {
         search: filters.search
     });
 
-    fetch(`reports/get_reports.php?${query}`, { credentials: 'same-origin' })
+    fetch(`/town_issues/reports/get_reports.php?${query}`, { credentials: 'same-origin' })
         .then(response => response.json())
         .then(data => {
             if (!data || !Array.isArray(data.reports) || !data.pagination) {
@@ -279,7 +279,7 @@ function renderReportsTable(reports) {
                         </option>
                     `).join('')}
                 </select>
-                <a class="assign-volunteer-link" href="admin/assign_volunteer.php?report_id=${Number(report.id)}">
+                <a class="assign-volunteer-link" href="/town_issues/admin/assign_volunteer.php?report_id=${Number(report.id)}">
                     Assign Volunteer
                 </a>
             </td>
@@ -352,7 +352,7 @@ function refreshAll() {
 }
 
 function updateStatus(id, status) {
-    fetch('reports/update_status.php', {
+    fetch('/town_issues/reports/update_status.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',

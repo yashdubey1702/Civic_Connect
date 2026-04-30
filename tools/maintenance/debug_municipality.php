@@ -13,15 +13,21 @@ if (!$isCli) {
     $auth->requireAuth('super_admin');
 }
 
-function h($value) {
+// Escapes output before rendering it in HTML.
+function h($value)
+{
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function normalizeWard($ward) {
+// Normalizes a ward value for consistent comparisons.
+function normalizeWard($ward)
+{
     return strtolower(trim((string)$ward));
 }
 
-function normalizeWardInput($value) {
+// Normalizes user-entered ward values.
+function normalizeWardInput($value)
+{
     $value = strtoupper(trim((string)$value));
     if (preg_match('/^W?([1-9][0-9]{0,2})$/', $value, $matches)) {
         return 'W' . $matches[1];
@@ -30,7 +36,9 @@ function normalizeWardInput($value) {
     return '';
 }
 
-function queryAll($db, $sql) {
+// Runs a query and returns all result rows.
+function queryAll($db, $sql)
+{
     $stmt = $db->prepare($sql);
     if (!$stmt) {
         throw new RuntimeException('Database prepare failed: ' . $db->error);
@@ -44,7 +52,9 @@ function queryAll($db, $sql) {
     return $rows;
 }
 
-function getWardAdmins($db) {
+// Loads ward admin accounts for diagnostics.
+function getWardAdmins($db)
+{
     $stmt = $db->prepare("
         SELECT id, full_name, email, UPPER(ward) AS ward_label, is_active, last_login, created_at
         FROM users
@@ -62,7 +72,9 @@ function getWardAdmins($db) {
     return $rows;
 }
 
-function handleWardAccessAction($db, $action, $post) {
+// Applies requested ward access maintenance changes.
+function handleWardAccessAction($db, $action, $post)
+{
     if ($action === 'add_ward') {
         $wardLabel = normalizeWardInput($post['ward'] ?? '');
         $wardValue = strtolower($wardLabel);
@@ -178,7 +190,9 @@ function handleWardAccessAction($db, $action, $post) {
     throw new RuntimeException('Unknown ward access action.');
 }
 
-function ringCentroid($ring) {
+// Calculates the centroid of a polygon ring.
+function ringCentroid($ring)
+{
     $area = 0.0;
     $centerLng = 0.0;
     $centerLat = 0.0;
@@ -211,7 +225,9 @@ function ringCentroid($ring) {
     ];
 }
 
-function averagePoint($ring) {
+// Calculates an average point from coordinates.
+function averagePoint($ring)
+{
     $lat = 0.0;
     $lng = 0.0;
     $count = 0;
@@ -235,7 +251,9 @@ function averagePoint($ring) {
     ];
 }
 
-function gridPointCandidates($ring, $steps = 12) {
+// Builds sample points inside a polygon ring.
+function gridPointCandidates($ring, $steps = 12)
+{
     $minLat = null;
     $maxLat = null;
     $minLng = null;
@@ -271,7 +289,9 @@ function gridPointCandidates($ring, $steps = 12) {
     return $candidates;
 }
 
-function getPolygonRings($geometry) {
+// Extracts polygon rings from GeoJSON geometry.
+function getPolygonRings($geometry)
+{
     if (!isset($geometry['type'], $geometry['coordinates'])) {
         return [];
     }
@@ -291,7 +311,9 @@ function getPolygonRings($geometry) {
     return [];
 }
 
-function chooseTestPoint($geometry, $expectedWard, $wardDetector) {
+// Chooses a test point for ward diagnostics.
+function chooseTestPoint($geometry, $expectedWard, $wardDetector)
+{
     $fallback = null;
 
     foreach (getPolygonRings($geometry) as $ring) {
@@ -320,7 +342,9 @@ function chooseTestPoint($geometry, $expectedWard, $wardDetector) {
     return $fallback;
 }
 
-function buildDiagnostics($db, $wardDetector) {
+// Builds the municipality and ward diagnostic report.
+function buildDiagnostics($db, $wardDetector)
+{
     $wards = $wardDetector->getAllWards();
     $reports = queryAll(
         $db,
@@ -412,7 +436,9 @@ function buildDiagnostics($db, $wardDetector) {
     ];
 }
 
-function repairReports($db, $wardDetector, $mode) {
+// Repairs stored report ward data when requested.
+function repairReports($db, $wardDetector, $mode)
+{
     $reports = queryAll(
         $db,
         "SELECT id, latitude, longitude, municipality
@@ -558,7 +584,7 @@ if ($isCli) {
 
 $csrfToken = $_SESSION['maintenance_csrf'];
 $wardAdmins = getWardAdmins($db);
-$activeWardCount = count(array_filter($wardAdmins, static fn($wardAdmin) => (int)$wardAdmin['is_active'] === 1));
+$activeWardCount = count(array_filter($wardAdmins, static fn ($wardAdmin) => (int)$wardAdmin['is_active'] === 1));
 $removedWardCount = count($wardAdmins) - $activeWardCount;
 ?>
 <!DOCTYPE html>
@@ -1045,7 +1071,7 @@ $removedWardCount = count($wardAdmins) - $activeWardCount;
                 <span>Town Issues Maintenance</span>
             </div>
             <nav class="nav-actions" aria-label="Maintenance navigation">
-                <a class="btn" href="/town_issues/admin_dashboard.php">
+                <a class="btn" href="/town_issues/admin/dashboard.php">
                     <i class="fa-solid fa-table-columns" aria-hidden="true"></i>
                     Dashboard
                 </a>

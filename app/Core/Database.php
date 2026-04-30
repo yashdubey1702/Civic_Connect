@@ -1,8 +1,13 @@
 <?php
-class Database {
+
+// Provides database connection access for the application.
+class Database
+{
     public $conn;
 
-    public function getConnection() {
+    // Opens and returns the mysqli database connection.
+    public function getConnection()
+    {
         $this->conn = new mysqli("localhost", "root", "", "town_issues");
 
         if ($this->conn->connect_error) {
@@ -12,4 +17,3 @@ class Database {
         return $this->conn;
     }
 }
-?>

@@ -26,7 +26,7 @@
       "label": "Civic issue reporting on mobile"
     }
   ],
-  "start_url": "/town_issues/login.php",
+  "start_url": "/town_issues/auth/login.php",
   "background_color": "#ffffff",
   "display": "standalone",
   "scope": "/town_issues/",

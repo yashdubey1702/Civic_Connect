@@ -23,7 +23,7 @@ function isWithinBhubaneswar(lat, lng, bmcLayer) {
 //Load ward division lines first, then keep the full city boundary on top.
 
 function loadBhubaneswarWardBoundaries(map) {
-    return fetch('./data/Wards.geojson')
+    return fetch('/town_issues/data/Wards.geojson')
         .then(response => {
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);
@@ -55,7 +55,7 @@ function loadBhubaneswarWardBoundaries(map) {
 //Load Bhubaneswar Municipal Boundary
 
 function loadBhubaneswarBoundary(map) {
-    return loadBhubaneswarWardBoundaries(map).then(() => fetch('./data/bmc_boundary.geojson')
+    return loadBhubaneswarWardBoundaries(map).then(() => fetch('/town_issues/data/bmc_boundary.geojson')
         .then(response => {
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);

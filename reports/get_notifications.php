@@ -1,4 +1,5 @@
 <?php
+
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../app/Core/Database.php';
@@ -21,7 +22,9 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-function notification_excerpt($value, $limit = 90) {
+// Shortens notification text for the drawer.
+function notification_excerpt($value, $limit = 90)
+{
     $value = trim((string)$value);
 
     if ($value === '') {
@@ -35,7 +38,9 @@ function notification_excerpt($value, $limit = 90) {
     return strlen($value) > $limit ? substr($value, 0, $limit - 3) . '...' : $value;
 }
 
-function run_notifications_query(mysqli $db, $sql, $bindTypes = '', array $bindValues = []) {
+// Runs a notification query and returns rows.
+function run_notifications_query(mysqli $db, $sql, $bindTypes = '', array $bindValues = [])
+{
     $stmt = $db->prepare($sql);
 
     if (!$stmt) {
@@ -54,7 +59,9 @@ function run_notifications_query(mysqli $db, $sql, $bindTypes = '', array $bindV
     return $rows;
 }
 
-function ensure_notification_reads_table(mysqli $db) {
+// Creates and cleans the notification read-tracking table.
+function ensure_notification_reads_table(mysqli $db)
+{
     $db->query("
         CREATE TABLE IF NOT EXISTS notification_reads (
             id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -128,7 +135,7 @@ try {
                 'meta' => notification_excerpt($row['description'] ?? ''),
                 'status' => $row['status'],
                 'created_at' => $row['updated_at'] ?: $row['assigned_at'],
-                'url' => 'volunteers/task_view.php?id=' . (int)$row['id']
+                'url' => '/town_issues/volunteers/task_view.php?id=' . (int)$row['id']
             ];
         }, $rows);
     } else {
@@ -204,7 +211,7 @@ try {
                 'meta' => notification_excerpt($row['description'] ?? ''),
                 'status' => $row['status'],
                 'created_at' => $row['created_at'],
-                'url' => $isAdmin ? null : 'report_history.php'
+                'url' => $isAdmin ? null : '/town_issues/user/report_history.php'
             ];
         }, $rows);
     }

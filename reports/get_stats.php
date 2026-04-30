@@ -1,4 +1,5 @@
 <?php
+
 // reports/get_stats.php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../app/Core/Database.php';

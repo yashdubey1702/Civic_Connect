@@ -196,6 +196,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
                         <strong>Reported:</strong>
                         ${new Date(report.created_at).toLocaleDateString()}
                     </p>
+                    ${report.tracking_token ? `<p style="margin:5px 0;"><strong>Tracking Token:</strong> <code>${escapeHtml(report.tracking_token)}</code></p>` : ''}
                     ${report.description ? `<p style="margin:10px 0 0 0;padding-top:10px;border-top:1px solid #f0f0f0;"><em>${escapeHtml(report.description)}</em></p>` : ''}
                 </div>
             `);
@@ -213,7 +214,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
     function loadUserReports() {
         if (!userMap) return;
 
-        fetch('reports/get_user_reports.php', { credentials: 'same-origin' })
+        fetch('/town_issues/reports/get_user_reports.php', { credentials: 'same-origin' })
             .then(response => response.json())
             .then(data => renderUserReports(normalizeReportsResponse(data)))
             .catch(error => {
@@ -223,7 +224,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
     }
 
     function loadBoundary() {
-        return fetch('./data/Wards.geojson')
+        return fetch('/town_issues/data/Wards.geojson')
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();
@@ -244,7 +245,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             .catch(error => {
                 console.error('Ward boundary load failed:', error);
             })
-            .then(() => fetch('./data/bmc_boundary.geojson'))
+            .then(() => fetch('/town_issues/data/bmc_boundary.geojson'))
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();
@@ -427,7 +428,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
         formData.set('lat', String(lat));
         formData.set('lng', String(lng));
 
-        fetch('reports/submit_report.php', {
+        fetch('/town_issues/reports/submit_report.php', {
             method: 'POST',
             body: formData,
             credentials: 'same-origin'
@@ -435,7 +436,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showNotification(data.message || 'Report submitted successfully.', data.email_sent === false ? 'warning' : 'success');
+                    showNotification(data.message || 'Report submitted successfully.', 'success');
                     closeReportModal();
                     loadUserReports();
                 } else {

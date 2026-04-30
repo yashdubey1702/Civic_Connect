@@ -1,0 +1,227 @@
+<?php
+session_start();
+require_once __DIR__ . '/../app/Core/Database.php';
+require_once __DIR__ . '/../app/Core/Auth.php';
+
+$database = new Database();
+$db = $database->getConnection(); // mysqli
+$auth = new Auth($db);
+
+$error = '';
+$success = '';
+$rememberCookie = 'civicconnect_remember_email';
+$rememberCookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+$rememberCookiePath = $rememberCookiePath === '' ? '/' : $rememberCookiePath;
+$rememberedEmail = trim($_COOKIE[$rememberCookie] ?? '');
+
+// Stores the remembered email cookie for login.
+function setRememberedEmailCookie($cookieName, $path, $email)
+{
+    setcookie($cookieName, $email, [
+        'expires' => time() + (60 * 60 * 24 * 30),
+        'path' => $path,
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+}
+
+// Clears the remembered email cookie.
+function clearRememberedEmailCookie($cookieName, $path)
+{
+    setcookie($cookieName, '', [
+        'expires' => time() - 3600,
+        'path' => $path,
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+}
+
+// Check if user was redirected from successful registration
+if (isset($_GET['volunteer_registered']) && $_GET['volunteer_registered'] == '1') {
+    $success = "Volunteer registration submitted. Admin approval is required before tasks can be assigned.";
+} elseif (isset($_GET['registered']) && $_GET['registered'] == '1') {
+    $success = "Registration successful! Please login with your credentials.";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $rememberMe = isset($_POST['remember_me']);
+
+    if (!$rememberMe) {
+        clearRememberedEmailCookie($rememberCookie, $rememberCookiePath);
+    }
+
+    if (empty($email) || empty($password)) {
+        $error = "Please enter both email and password.";
+    } else {
+
+        if ($auth->login($email, $password)) {
+            if ($rememberMe) {
+                setRememberedEmailCookie($rememberCookie, $rememberCookiePath, $email);
+            }
+
+            $role = $_SESSION['user_type'] ?? '';
+
+            if ($role === 'super_admin') {
+                header("Location: /town_issues/admin/dashboard.php");
+
+            } elseif ($role === 'municipal_admin') {
+                header("Location: /town_issues/admin/municipal_dashboard.php");
+
+            } elseif ($role === 'ward_admin') {
+                header("Location: /town_issues/admin/municipal_dashboard.php");
+
+            } elseif ($role === 'volunteer') {
+                header("Location: /town_issues/volunteers/dashboard.php");
+
+            } else {
+                header("Location: /town_issues/user/dashboard.php");
+            }
+
+            exit;
+
+        } else {
+            $error = "Invalid email or password.";
+        }
+    }
+}
+
+$emailValue = isset($_POST['email']) ? trim($_POST['email']) : $rememberedEmail;
+$rememberChecked = isset($_POST['remember_me']) || ($_SERVER['REQUEST_METHOD'] !== 'POST' && $rememberedEmail !== '');
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Municipal Issue Reporting System</title>
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Left Panel - Illustration -->
+        <div class="auth-illustration">
+            <div class="illustration-content">
+                <div class="gov-logo">
+                    <img src="/town_issues/assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/>
+                </div>
+                <h2>Municipal Issue Reporting System</h2>
+                <p>Report and track community issues in Bhubaneswar</p>
+                <div class="illustration-features">
+                    <div class="feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Pinpoint issues on our interactive map</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-tasks"></i>
+                        <span>Track report progress in real-time</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <span>Join a community of active citizens</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="auth-form-panel">
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <a href="/town_issues/public/index.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your account to continue</p>
+                </div>
+
+                <?php if (!empty($error)): ?>
+                    <div class="message-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($success)): ?>
+                    <div class="message-success">
+                        <i class="fas fa-check-circle"></i>
+                        <?php echo $success; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="/town_issues/auth/login.php" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="Enter your email" autocomplete="email" required value="<?php echo htmlspecialchars($emailValue, ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon password-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Enter your password" autocomplete="current-password" required>
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="rememberMe" name="remember_me" value="1" <?php echo $rememberChecked ? 'checked' : ''; ?>>
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="/town_issues/auth/forget_password.php" class="forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="/town_issues/auth/register.php">Create account</a></p>
+                </div>
+            </div>
+
+            <div class="auth-copyright">
+                <p>© 2024 Municipal Government of Bhubaneswar. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggles password input visibility in the form.
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

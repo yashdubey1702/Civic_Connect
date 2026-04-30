@@ -2,7 +2,7 @@
 const CACHE_NAME = 'civicconnect-bhubaneswar-v1';
 const urlsToCache = [
   '/town_issues/',
-  '/town_issues/login.php',
+  '/town_issues/auth/login.php',
   '/town_issues/assets/css/style.css',
   '/town_issues/assets/js/map-common.js',
   '/town_issues/assets/images/icon-192x192.png'

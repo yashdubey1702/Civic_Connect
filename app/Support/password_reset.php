@@ -5,7 +5,9 @@ const RESET_OTP_WINDOW_MINUTES = 15;
 const RESET_OTP_MAX_PER_WINDOW = 5;
 const RESET_OTP_COOLDOWN_SECONDS = 60;
 
-function maskResetEmail($email) {
+// Masks an email address before showing it on reset screens.
+function maskResetEmail($email)
+{
     $email = trim((string)$email);
     $parts = explode('@', $email, 2);
 
@@ -20,7 +22,9 @@ function maskResetEmail($email) {
     return $visible . str_repeat('*', max(3, strlen($local) - 1)) . '@' . $domain;
 }
 
-function passwordResetUserExists($db, $email) {
+// Checks whether an email belongs to an account.
+function passwordResetUserExists($db, $email)
+{
     $query = "SELECT id FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1";
     $stmt = $db->prepare($query);
     $stmt->bind_param("s", $email);
@@ -33,7 +37,9 @@ function passwordResetUserExists($db, $email) {
     return $exists;
 }
 
-function cleanupPasswordResetAttempts($db, $email) {
+// Removes expired password reset attempts.
+function cleanupPasswordResetAttempts($db, $email)
+{
     $windowMinutes = (int)RESET_OTP_WINDOW_MINUTES;
 
     $query = "DELETE FROM password_resets
@@ -48,7 +54,9 @@ function cleanupPasswordResetAttempts($db, $email) {
     $stmt->close();
 }
 
-function isPasswordResetThrottled($db, $email) {
+// Checks whether too many reset attempts were requested.
+function isPasswordResetThrottled($db, $email)
+{
     $windowMinutes = (int)RESET_OTP_WINDOW_MINUTES;
 
     $query = "
@@ -87,7 +95,9 @@ function isPasswordResetThrottled($db, $email) {
     return false;
 }
 
-function issuePasswordResetOtp($db, $email) {
+// Creates and sends a password reset OTP.
+function issuePasswordResetOtp($db, $email)
+{
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return null;
     }

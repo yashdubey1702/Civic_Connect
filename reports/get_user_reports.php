@@ -39,6 +39,7 @@ $query = "
         description,
         status,
         created_at,
+        tracking_token,
         image_filename
     FROM reports
     WHERE user_id = ?

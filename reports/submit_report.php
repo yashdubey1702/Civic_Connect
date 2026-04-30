@@ -27,6 +27,7 @@ $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 
 $imageFilename = null;
 
+// Generates a unique public tracking token for a report.
 function generateTrackingToken(mysqli $db): string
 {
     do {
@@ -41,6 +42,7 @@ function generateTrackingToken(mysqli $db): string
     return $token;
 }
 
+// Builds the absolute home page URL for email links.
 function getHomePageUrl(): string
 {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
@@ -48,7 +50,7 @@ function getHomePageUrl(): string
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
     $basePath = rtrim(dirname(dirname($scriptName)), '/');
 
-    return $scheme . '://' . $host . ($basePath === '' ? '' : $basePath) . '/index.html';
+    return $scheme . '://' . $host . ($basePath === '' ? '' : $basePath) . '/public/index.html';
 }
 
 /* =========================
@@ -149,7 +151,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
- 
+
 /* =========================
    INSERT REPORT
    ========================= */
@@ -187,14 +189,14 @@ if ($stmt->execute()) {
         'submitted_at' => date('Y-m-d H:i:s'),
         'tracking_url' => getHomePageUrl()
     ]);
-
     echo json_encode([
         "success" => true,
         "message" => $emailSent
             ? "Report submitted successfully. The tracking token has been sent to your email."
-            : "Report submitted successfully, but the tracking email could not be sent right now.",
+            : "Report submitted successfully. Your tracking token is {$trackingToken}.",
         "ward"    => $ward,
-        "email_sent" => $emailSent
+        "email_sent" => $emailSent,
+        "tracking_token" => $trackingToken
     ]);
 } else {
     echo json_encode([

@@ -59,22 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Profile - CivicConnect</title>
-    <link rel="icon" href="../assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/user-dashboard.css">
-    <link rel="stylesheet" href="../assets/css/mobile.css?v=3">
-    <link rel="stylesheet" href="../assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/user-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/mobile.css?v=3">
+    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
 </head>
 <body class="volunteer-shell">
 <nav class="user-sidebar">
     <div class="sidebar-header"><div class="logo-container"><div class="gov-logo"><svg viewBox="0 0 24 24"><path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" /></svg></div><div class="logo-text"><h2>Volunteer Portal</h2><span>CivicConnect</span></div></div></div>
     <ul class="sidebar-menu">
-        <li class="menu-item"><a href="dashboard.php"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
-        <li class="menu-item"><a href="my_tasks.php"><i class="fas fa-clipboard-list"></i><span>My Tasks</span></a></li>
-        <li class="menu-item active"><a href="profile.php"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <li class="menu-item"><a href="/town_issues/volunteers/dashboard.php"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+        <li class="menu-item"><a href="/town_issues/volunteers/my_tasks.php"><i class="fas fa-clipboard-list"></i><span>My Tasks</span></a></li>
+        <li class="menu-item active"><a href="/town_issues/volunteers/profile.php"><i class="fas fa-user"></i><span>Profile</span></a></li>
     </ul>
-    <div class="sidebar-footer"><div class="user-info"><div class="user-avatar"><i class="fas fa-hands-helping"></i></div><div class="user-details"><span class="user-name"><?= h($_SESSION['full_name'] ?? 'Volunteer') ?></span><span class="user-role">Volunteer</span></div></div><a href="../logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+    <div class="sidebar-footer"><div class="user-info"><div class="user-avatar"><i class="fas fa-hands-helping"></i></div><div class="user-details"><span class="user-name"><?= h($_SESSION['full_name'] ?? 'Volunteer') ?></span><span class="user-role">Volunteer</span></div></div><a href="/town_issues/auth/logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
 </nav>
 
 <main class="user-main volunteer-main">
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </main>
-<script src="../assets/js/theme-toggle.js"></script>
-<script src="../assets/js/sidebar.js?v=3"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

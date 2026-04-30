@@ -146,7 +146,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         if (status && status !== 'all') params.set('status', status);
 
         const query = params.toString();
-        const url = query ? `reports/get_map_reports.php?${query}` : 'reports/get_map_reports.php';
+        const url = query ? `/town_issues/reports/get_map_reports.php?${query}` : '/town_issues/reports/get_map_reports.php';
 
         fetch(url, { credentials: 'same-origin' })
             .then(response => response.json())
@@ -251,7 +251,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
             const body = new URLSearchParams();
             body.set('tracking_token', token);
 
-            fetch('reports/track_status.php', {
+            fetch('/town_issues/reports/track_status.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -283,7 +283,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
         const counter = document.getElementById('footerVisitors');
         if (!counter) return;
 
-        fetch('visitor_count.php', {
+        fetch('/town_issues/public/visitor_count.php', {
             credentials: 'same-origin',
             cache: 'no-store'
         })
@@ -324,7 +324,7 @@ console.log('[PublicMapJS] Loaded (Bhubaneswar)');
             reportForm.style.display = 'none';
             reportForm.addEventListener('submit', event => {
                 event.preventDefault();
-                window.location.href = 'login.php';
+                window.location.href = '/town_issues/auth/login.php';
             });
         }
 

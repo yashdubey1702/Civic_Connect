@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once __DIR__ . '/../app/Core/Database.php';
 require_once __DIR__ . '/../app/Core/Auth.php';
@@ -10,7 +11,7 @@ $auth = new Auth($db);
 $auth->requireAuth('volunteer');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: my_tasks.php");
+    header("Location: /town_issues/volunteers/my_tasks.php");
     exit;
 }
 
@@ -26,7 +27,7 @@ $task = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$task) {
-    header("Location: my_tasks.php?error=" . rawurlencode("Task not found"));
+    header("Location: /town_issues/volunteers/my_tasks.php?error=" . rawurlencode("Task not found"));
     exit;
 }
 
@@ -45,28 +46,28 @@ if ($action === 'accept' && $task['status'] === 'Assigned') {
     $timeColumn = 'completed_at';
 
     if ($note === '') {
-        header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Completion note is required"));
+        header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Completion note is required"));
         exit;
     }
 
     if (empty($_FILES['proof_image']['name']) && empty($task['proof_image'])) {
-        header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Proof image is required"));
+        header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Proof image is required"));
         exit;
     }
 
     if (!empty($_FILES['proof_image']['name'])) {
         if (($_FILES['proof_image']['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Proof upload failed"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Proof upload failed"));
             exit;
         }
 
         if (($_FILES['proof_image']['size'] ?? 0) > 5 * 1024 * 1024) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Proof image must be 5MB or smaller"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Proof image must be 5MB or smaller"));
             exit;
         }
 
         if (!is_uploaded_file($_FILES['proof_image']['tmp_name'])) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Invalid proof upload"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Invalid proof upload"));
             exit;
         }
 
@@ -83,12 +84,12 @@ if ($action === 'accept' && $task['status'] === 'Assigned') {
         }
 
         if (!array_key_exists($mime, $allowedTypes)) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Only JPG, PNG, and WEBP proof images are allowed"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Only JPG, PNG, and WEBP proof images are allowed"));
             exit;
         }
 
         if (@getimagesize($_FILES['proof_image']['tmp_name']) === false) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Invalid image file"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Invalid image file"));
             exit;
         }
 
@@ -96,14 +97,14 @@ if ($action === 'accept' && $task['status'] === 'Assigned') {
         $target = $uploadDir . $filename;
 
         if (!move_uploaded_file($_FILES['proof_image']['tmp_name'], $target)) {
-            header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Proof upload failed"));
+            header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Proof upload failed"));
             exit;
         }
 
         $proofPath = 'uploads/volunteer_proofs/' . $filename;
     }
 } else {
-    header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Invalid task action"));
+    header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Invalid task action"));
     exit;
 }
 
@@ -137,10 +138,10 @@ try {
     updateReportStatusForVolunteerTask($db, (int)$task['report_id'], $newStatus);
 
     $db->commit();
-    header("Location: task_view.php?id={$taskId}&success=" . rawurlencode("Task updated"));
+    header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&success=" . rawurlencode("Task updated"));
     exit;
 } catch (Throwable $e) {
     $db->rollback();
-    header("Location: task_view.php?id={$taskId}&error=" . rawurlencode("Unable to update task"));
+    header("Location: /town_issues/volunteers/task_view.php?id={$taskId}&error=" . rawurlencode("Unable to update task"));
     exit;
 }

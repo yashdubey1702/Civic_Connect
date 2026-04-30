@@ -1,10 +1,7 @@
 (function () {
-    const rootPath = location.pathname.includes('/volunteers/') || location.pathname.includes('/admin/')
-        ? '../'
-        : '';
-    const endpoint = `${rootPath}reports/get_notifications.php`;
-    const markReadEndpoint = `${rootPath}reports/mark_notification_read.php`;
-    const assetPrefix = rootPath;
+    const appRoot = '/town_issues/';
+    const endpoint = `${appRoot}reports/get_notifications.php`;
+    const markReadEndpoint = `${appRoot}reports/mark_notification_read.php`;
 
     let drawer = null;
     let overlay = null;
@@ -41,6 +38,15 @@
 
     function statusClass(status) {
         return String(status || 'info').toLowerCase().replace(/\s+/g, '-');
+    }
+
+    function notificationUrl(value) {
+        const url = String(value || '');
+
+        if (!url) return '';
+        if (/^(https?:|mailto:|tel:|\/)/i.test(url)) return url;
+
+        return `${appRoot}${url.replace(/^\/+/, '')}`;
     }
 
     function ensureDrawer() {
@@ -141,7 +147,7 @@
             `;
 
             if (item.url) {
-                const url = item.url.startsWith('http') ? item.url : `${assetPrefix}${item.url}`;
+                const url = notificationUrl(item.url);
                 return `<a class="notification-item" href="${escapeHtml(url)}" data-notification-id="${escapeHtml(item.id)}">${content}</a>`;
             }
 

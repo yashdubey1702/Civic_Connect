@@ -1,0 +1,224 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+session_start();
+
+require_once __DIR__ . '/../app/Core/Database.php';
+require_once __DIR__ . '/../app/Core/Auth.php';
+
+$database = new Database();
+$db = $database->getConnection();
+$auth = new Auth($db);
+
+// Correct auth check
+$auth->requireAuth('super_admin');
+
+// Get user info
+$full_name = $_SESSION['full_name'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Dashboard - CivicConnect Bhubaneswar</title>
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/notifications.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="gov-header">
+    <div class="header-content">
+        <div class="gov-brand">
+            <div class="gov-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" />
+                </svg>
+            </div>
+            <div class="gov-titles">
+                <h1>CivicConnect</h1>
+                <p class="tagline">Bhubaneswar Municipal Corporation - Administrator Dashboard</p>
+            </div>
+        </div>
+        <div class="dashboard-controls">
+            <span class="admin-welcome">
+                Welcome, <?php echo htmlspecialchars($full_name); ?>
+            </span>
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="/town_issues/tools/maintenance/debug_municipality.php" class="admin-nav-link">Maintenance</a>
+                <a href="/town_issues/admin/volunteers.php" class="admin-nav-link">Volunteers</a>
+                <a href="/town_issues/admin/volunteer_tasks.php" class="admin-nav-link">Volunteer Tasks</a>
+            </nav>
+            <button class="notification-btn" type="button" aria-label="Open notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" hidden>0</span>
+            </button>
+            <div class="theme-toggle-container">
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <span class="toggle-thumb"></span>
+                </div>
+            </div>
+            <a href="/town_issues/auth/logout.php" class="logout-btn">Logout</a>
+        </div>
+    </div>
+</header>
+
+<!-- Dashboard -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">City-wide Report Management Dashboard</h1>
+        <p class="dashboard-subtitle">
+            View and manage all civic issue reports across Bhubaneswar city
+        </p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-number" id="totalReports">0</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="reportedCount">0</div>
+            <div class="stat-label">Reported</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="acknowledgedCount">0</div>
+            <div class="stat-label">Acknowledged</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="inProgressCount">0</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="resolvedCount">0</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-controls" style="margin-top: 1rem;">
+        <div class="filter-group">
+            <label for="municipalityFilter">Ward / Zone:</label>
+            <select class="filter-select" id="municipalityFilter" onchange="applyFilters()">
+                <option value="all">All Wards</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+                <option value="all">All Statuses</option>
+                <option value="Reported">Reported</option>
+                <option value="Acknowledged">Acknowledged</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="categoryFilter">Category:</label>
+            <select class="filter-select" id="categoryFilter" onchange="applyFilters()">
+                <option value="all">All Categories</option>
+                <option value="Pothole">Pothole</option>
+                <option value="Graffiti">Graffiti</option>
+                <option value="Broken Streetlight">Broken Streetlight</option>
+                <option value="Trash">Trash</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="searchInput">Search:</label>
+            <input type="text" class="filter-select" id="searchInput"
+                   placeholder="Search by category, description, email..."
+                   onkeyup="handleSearch()">
+        </div>
+
+        <div class="filter-actions">
+            <button class="refresh-btn" onclick="refreshAll()">Refresh</button>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="dashboard-layout">
+        <!-- Map -->
+        <div class="map-section">
+            <h2>Reports Map</h2>
+            <p>All reported civic issues within Bhubaneswar city limits</p>
+
+            <div class="map-controls">
+                <div class="filter-chips" id="mapFilterChips"></div>
+            </div>
+
+            <div class="map-wrapper">
+                <div id="adminMap">
+                    <div class="map-legend">
+                        <h4>Status Legend</h4>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #c62828;"></span>
+                            <span>Reported</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #f57c00;"></span>
+                            <span>Acknowledged</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #0277bd;"></span>
+                            <span>In Progress</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: #2e7d32;"></span>
+                            <span>Resolved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports -->
+        <div class="reports-section">
+            <h2>Reports Management</h2>
+            <div class="reports-container">
+                <div class="table-responsive">
+                    <div id="reportsTable">
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Loading reports...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="pagination" class="pagination-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="gov-footer">
+    <div class="footer-content">
+        <p>Bhubaneswar Municipal Corporation - CivicConnect</p>
+        <div class="footer-bottom">
+            <p>&copy; <?= date('Y') ?> Authorized Administrative Access</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/notifications.js?v=2"></script>
+<script src="/town_issues/assets/js/admin-dashboard.js?v=1.2"></script>
+</body>
+</html>

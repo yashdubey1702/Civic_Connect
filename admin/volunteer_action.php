@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once __DIR__ . '/../app/Core/Database.php';
 require_once __DIR__ . '/../app/Core/Auth.php';
@@ -10,7 +11,7 @@ $auth = new Auth($db);
 $auth->requireAuth('any_admin');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: volunteers.php");
+    header("Location: /town_issues/admin/volunteers.php");
     exit;
 }
 
@@ -26,7 +27,7 @@ $statusMap = [
 ];
 
 if ($profileId <= 0 || !isset($statusMap[$action]) || !adminCanAccessVolunteer($db, $auth, $profileId)) {
-    header("Location: volunteers.php?error=" . rawurlencode("Invalid volunteer action"));
+    header("Location: /town_issues/admin/volunteers.php?error=" . rawurlencode("Invalid volunteer action"));
     exit;
 }
 
@@ -53,9 +54,9 @@ $success = $stmt->execute();
 $stmt->close();
 
 if (!$success) {
-    header("Location: volunteer_view.php?id={$profileId}&error=" . rawurlencode("Unable to update volunteer"));
+    header("Location: /town_issues/admin/volunteer_view.php?id={$profileId}&error=" . rawurlencode("Unable to update volunteer"));
     exit;
 }
 
-header("Location: volunteer_view.php?id={$profileId}&success=" . rawurlencode("Volunteer updated"));
+header("Location: /town_issues/admin/volunteer_view.php?id={$profileId}&success=" . rawurlencode("Volunteer updated"));
 exit;

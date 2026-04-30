@@ -133,7 +133,7 @@ function initUserMap() {
     }
 
     function loadUserReports() {
-        fetch('reports/get_user_reports.php', { credentials: 'same-origin' })
+        fetch('/town_issues/reports/get_user_reports.php', { credentials: 'same-origin' })
             .then(response => response.json())
             .then(data => {
                 renderReports(normalizeReportsResponse(data));

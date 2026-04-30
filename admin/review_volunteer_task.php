@@ -11,7 +11,7 @@ $auth->requireAuth('any_admin');
 
 $taskId = (int)($_GET['id'] ?? ($_POST['task_id'] ?? 0));
 if ($taskId <= 0 || !adminCanAccessTask($db, $auth, $taskId)) {
-    header("Location: volunteer_tasks.php?error=" . rawurlencode("Task not found or access denied"));
+    header("Location: /town_issues/admin/volunteer_tasks.php?error=" . rawurlencode("Task not found or access denied"));
     exit;
 }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 
     if (!$task) {
-        header("Location: volunteer_tasks.php?error=" . rawurlencode("Task not found"));
+        header("Location: /town_issues/admin/volunteer_tasks.php?error=" . rawurlencode("Task not found"));
         exit;
     }
 
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($newStatus === null) {
-        header("Location: review_volunteer_task.php?id={$taskId}&error=" . rawurlencode("Invalid review action for this task status"));
+        header("Location: /town_issues/admin/review_volunteer_task.php?id={$taskId}&error=" . rawurlencode("Invalid review action for this task status"));
         exit;
     } else {
         $db->begin_transaction();
@@ -74,11 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $db->commit();
-            header("Location: review_volunteer_task.php?id={$taskId}&success=" . rawurlencode("Task review saved"));
+            header("Location: /town_issues/admin/review_volunteer_task.php?id={$taskId}&success=" . rawurlencode("Task review saved"));
             exit;
         } catch (Throwable $e) {
             $db->rollback();
-            header("Location: review_volunteer_task.php?id={$taskId}&error=" . rawurlencode("Unable to save review"));
+            header("Location: /town_issues/admin/review_volunteer_task.php?id={$taskId}&error=" . rawurlencode("Unable to save review"));
             exit;
         }
     }
@@ -104,7 +104,7 @@ $task = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$task) {
-    header("Location: volunteer_tasks.php?error=" . rawurlencode("Task not found"));
+    header("Location: /town_issues/admin/volunteer_tasks.php?error=" . rawurlencode("Task not found"));
     exit;
 }
 
@@ -129,18 +129,18 @@ $success = trim($_GET['success'] ?? '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review Volunteer Task - CivicConnect Admin</title>
-    <link rel="icon" href="../assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="../assets/css/admin-mobile.css">
-    <link rel="stylesheet" href="../assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
 </head>
 <body>
 <header class="gov-header">
     <div class="header-content">
         <div class="gov-brand"><div class="gov-logo"><svg viewBox="0 0 24 24"><path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" /></svg></div><div class="gov-titles"><h1>CivicConnect</h1><p class="tagline">Volunteer Task Review</p></div></div>
-        <div class="dashboard-controls"><a href="volunteers.php" class="logout-btn">Volunteers</a><a href="volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="../logout.php" class="logout-btn">Logout</a></div>
+        <div class="dashboard-controls"><a href="/town_issues/admin/volunteers.php" class="logout-btn">Volunteers</a><a href="/town_issues/admin/volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="/town_issues/auth/logout.php" class="logout-btn">Logout</a></div>
     </div>
 </header>
 
@@ -183,7 +183,7 @@ $success = trim($_GET['success'] ?? '');
             <?php endif; ?>
 
             <?php if (!empty($task['proof_image'])): ?>
-                <p><img class="proof-image" src="../<?= h($task['proof_image']) ?>" alt="Volunteer proof image"></p>
+                <p><img class="proof-image" src="/town_issues/<?= h($task['proof_image']) ?>" alt="Volunteer proof image"></p>
             <?php else: ?>
                 <p class="muted">No proof image submitted.</p>
             <?php endif; ?>
@@ -223,6 +223,6 @@ $success = trim($_GET['success'] ?? '');
         <?php endif; ?>
     </div>
 </div>
-<script src="../assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
 </body>
 </html>

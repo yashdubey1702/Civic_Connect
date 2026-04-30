@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../app/Core/Database.php';
@@ -47,4 +48,3 @@ if ($stmt->execute() && $stmt->affected_rows > 0) {
 }
 
 $stmt->close();
-?>

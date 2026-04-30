@@ -12,15 +12,20 @@ Key folders:
 - `assets/` - CSS, JavaScript, and images.
 - `reports/` - report API endpoints and uploaded report images.
 - `data/` - GeoJSON boundary data.
-- `database/` - SQL schema/dump files.
+- `database/` - single SQL import file.
 - `tools/maintenance/` - CLI-only backfill/debug scripts.
 
 ## Local Setup
 
 1. Put the project under your XAMPP `htdocs` directory.
-2. Import `database/community_issues.sql` into MySQL.
+2. Import `database/civicconnect_import.sql` into MySQL.
 3. Keep local secrets in `.env`; this file is intentionally ignored by Git.
-4. Open `http://localhost/town_issues/` in your browser.
+4. Open `http://localhost/town_issues/` or `http://localhost/town_issues/public/index.html` in your browser.
+
+Starter admin login after importing the database:
+
+- Email: `superadmin@bmc.gov.in`
+- Password: `password`
 
 ## Maintenance Scripts
 

@@ -7,6 +7,24 @@ require_once __DIR__ . '/../../PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/../../PHPMailer/src/Exception.php';
 
+// Stores the latest mail failure so calling code can show or log a useful reason.
+function civicconnect_record_mail_error($message)
+{
+    $message = trim((string)$message);
+    $GLOBALS['civicconnect_last_mail_error'] = $message;
+
+    if ($message !== '') {
+        error_log('[CivicConnect Mail] ' . $message);
+    }
+}
+
+// Returns the latest mail failure from this request.
+function civicconnect_last_mail_error()
+{
+    return $GLOBALS['civicconnect_last_mail_error'] ?? '';
+}
+
+// Loads environment variables once for mail configuration.
 function civicconnect_load_env_once()
 {
     static $loaded = false;
@@ -29,13 +47,12 @@ function civicconnect_load_env_once()
     }
 
     foreach ($values as $key => $value) {
-        if (getenv((string)$key) === false) {
-            putenv($key . '=' . $value);
-        }
+        putenv($key . '=' . $value);
         $_ENV[(string)$key] = $value;
     }
 }
 
+// Reads an environment value with a fallback.
 function civicconnect_env($key, $default = '')
 {
     civicconnect_load_env_once();
@@ -44,12 +61,14 @@ function civicconnect_env($key, $default = '')
     return $value === false || $value === '' ? $default : $value;
 }
 
+// Applies SMTP settings to a PHPMailer instance.
 function configureCivicconnectMailer(PHPMailer $mail)
 {
     $username = civicconnect_env('SMTP_USERNAME');
     $password = civicconnect_env('SMTP_PASSWORD');
 
     if ($username === '' || $password === '') {
+        civicconnect_record_mail_error('SMTP_USERNAME and SMTP_PASSWORD must be set in .env.');
         return false;
     }
 
@@ -65,24 +84,24 @@ function configureCivicconnectMailer(PHPMailer $mail)
     return true;
 }
 
-function sendOTP($email,$otp){
+// Sends an OTP email to a user.
+function sendOTP($email, $otp)
+{
+    $mail = new PHPMailer(true);
 
-$mail = new PHPMailer(true);
+    try {
+        if (!configureCivicconnectMailer($mail)) {
+            return false;
+        }
 
-try {
+        $mail->setFrom(civicconnect_env('SMTP_FROM_EMAIL', civicconnect_env('SMTP_USERNAME')), civicconnect_env('SMTP_FROM_NAME', 'CivicConnect'));
+        $mail->addAddress($email);
 
-if (!configureCivicconnectMailer($mail)) {
-return false;
-}
+        $mail->isHTML(true);
 
-$mail->setFrom(civicconnect_env('SMTP_FROM_EMAIL', civicconnect_env('SMTP_USERNAME')), civicconnect_env('SMTP_FROM_NAME', 'CivicConnect'));
-$mail->addAddress($email);
+        $mail->Subject = "CivicConnect Password Reset";
 
-$mail->isHTML(true);
-
-$mail->Subject = "CivicConnect Password Reset";
-
-$mail->Body = "
+        $mail->Body = "
 <h3>CivicConnect Password Reset</h3>
 
 <p>Your verification code is:</p>
@@ -94,18 +113,16 @@ $mail->Body = "
 <p>If you did not request this password reset, please ignore this email.</p>
 ";
 
-$mail->send();
+        $mail->send();
 
-return true;
-
-} catch (Exception $e) {
-
-return false;
-
+        return true;
+    } catch (Throwable $e) {
+        civicconnect_record_mail_error($e->getMessage() ?: $mail->ErrorInfo);
+        return false;
+    }
 }
 
-}
-
+// Sends the public report tracking email.
 function sendReportTrackingEmail($email, array $report)
 {
     $mail = new PHPMailer(true);
@@ -167,7 +184,8 @@ function sendReportTrackingEmail($email, array $report)
 
         $mail->send();
         return true;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
+        civicconnect_record_mail_error($e->getMessage() ?: $mail->ErrorInfo);
         return false;
     }
 }

@@ -51,13 +51,13 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Dashboard - CivicConnect</title>
-    <link rel="icon" href="../assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/user-dashboard.css">
-    <link rel="stylesheet" href="../assets/css/mobile.css?v=3">
-    <link rel="stylesheet" href="../assets/css/volunteer-module.css">
-    <link rel="stylesheet" href="../assets/css/notifications.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/user-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/mobile.css?v=3">
+    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/notifications.css">
 </head>
 <body class="volunteer-shell">
 <nav class="user-sidebar">
@@ -68,16 +68,16 @@ $stmt->close();
         </div>
     </div>
     <ul class="sidebar-menu">
-        <li class="menu-item active"><a href="dashboard.php"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
-        <li class="menu-item"><a href="my_tasks.php"><i class="fas fa-clipboard-list"></i><span>My Tasks</span></a></li>
-        <li class="menu-item"><a href="profile.php"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <li class="menu-item active"><a href="/town_issues/volunteers/dashboard.php"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+        <li class="menu-item"><a href="/town_issues/volunteers/my_tasks.php"><i class="fas fa-clipboard-list"></i><span>My Tasks</span></a></li>
+        <li class="menu-item"><a href="/town_issues/volunteers/profile.php"><i class="fas fa-user"></i><span>Profile</span></a></li>
     </ul>
     <div class="sidebar-footer">
         <div class="user-info">
             <div class="user-avatar"><i class="fas fa-hands-helping"></i></div>
             <div class="user-details"><span class="user-name"><?= h($_SESSION['full_name'] ?? 'Volunteer') ?></span><span class="user-role">Volunteer</span></div>
         </div>
-        <a href="../logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        <a href="/town_issues/auth/logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
     </div>
 </nav>
 
@@ -100,7 +100,7 @@ $stmt->close();
                 <span class="notification-badge" hidden>0</span>
             </button>
             <?= badge($profile['status']) ?>
-            <a class="btn-volunteer-secondary" href="profile.php"><i class="fas fa-user-edit"></i> Profile</a>
+            <a class="btn-volunteer-secondary" href="/town_issues/volunteers/profile.php"><i class="fas fa-user-edit"></i> Profile</a>
         </div>
     </header>
 
@@ -129,7 +129,7 @@ $stmt->close();
         <div class="volunteer-card" style="margin-top: 24px;">
             <div class="volunteer-card-header">
                 <h2><i class="fas fa-clock"></i> Recent Tasks</h2>
-                <a class="btn-volunteer" href="my_tasks.php"><i class="fas fa-list"></i> View All</a>
+                <a class="btn-volunteer" href="/town_issues/volunteers/my_tasks.php"><i class="fas fa-list"></i> View All</a>
             </div>
             <div class="volunteer-card-body">
                 <?php if (empty($recentTasks)): ?>
@@ -146,7 +146,7 @@ $stmt->close();
                                     <td><?= h($task['municipality'] ?: '-') ?></td>
                                     <td><?= badge($task['status']) ?></td>
                                     <td><?= h(formatDateTime($task['assigned_at'])) ?></td>
-                                    <td><a class="btn-volunteer-secondary" href="task_view.php?id=<?= (int)$task['id'] ?>">Open</a></td>
+                                    <td><a class="btn-volunteer-secondary" href="/town_issues/volunteers/task_view.php?id=<?= (int)$task['id'] ?>">Open</a></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -157,8 +157,8 @@ $stmt->close();
         </div>
     </div>
 </main>
-<script src="../assets/js/theme-toggle.js"></script>
-<script src="../assets/js/notifications.js?v=1"></script>
-<script src="../assets/js/sidebar.js?v=3"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/notifications.js?v=2"></script>
+<script src="/town_issues/assets/js/sidebar.js?v=3"></script>
 </body>
 </html>

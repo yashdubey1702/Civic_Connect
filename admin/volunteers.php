@@ -8,7 +8,7 @@ $database = new Database();
 $db = $database->getConnection();
 $auth = new Auth($db);
 $auth->requireAuth('any_admin');
-$adminDashboardUrl = $auth->isSuperAdmin() ? '../admin_dashboard.php' : '../municipal_admin_dashboard.php';
+$adminDashboardUrl = $auth->isSuperAdmin() ? '/town_issues/admin/dashboard.php' : '/town_issues/admin/municipal_dashboard.php';
 
 $status = trim($_GET['status'] ?? 'all');
 $error = trim($_GET['error'] ?? '');
@@ -69,18 +69,18 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteers - CivicConnect Admin</title>
-    <link rel="icon" href="../assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="../assets/css/admin-mobile.css">
-    <link rel="stylesheet" href="../assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
 </head>
 <body>
 <header class="gov-header">
     <div class="header-content">
         <div class="gov-brand"><div class="gov-logo"><svg viewBox="0 0 24 24"><path d="M12,2L2,7L12,12L22,7L12,2M2,17L12,22L22,17V12L12,17L2,12V17Z" /></svg></div><div class="gov-titles"><h1>CivicConnect</h1><p class="tagline">Volunteer Administration</p></div></div>
-        <div class="dashboard-controls"><span class="admin-welcome"><?= h($_SESSION['full_name'] ?? 'Admin') ?></span><a href="<?= h($adminDashboardUrl) ?>" class="logout-btn">Dashboard</a><a href="volunteers.php" class="logout-btn">Volunteers</a><a href="volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="../logout.php" class="logout-btn">Logout</a></div>
+        <div class="dashboard-controls"><span class="admin-welcome"><?= h($_SESSION['full_name'] ?? 'Admin') ?></span><a href="<?= h($adminDashboardUrl) ?>" class="logout-btn">Dashboard</a><a href="/town_issues/admin/volunteers.php" class="logout-btn">Volunteers</a><a href="/town_issues/admin/volunteer_tasks.php" class="logout-btn">Volunteer Tasks</a><a href="/town_issues/auth/logout.php" class="logout-btn">Logout</a></div>
     </div>
 </header>
 
@@ -111,7 +111,7 @@ $stmt->close();
                 </select>
             </div>
             <button class="refresh-btn" type="submit">Filter</button>
-            <a class="refresh-btn" href="volunteer_tasks.php" style="text-align:center; text-decoration:none;">Tasks</a>
+            <a class="refresh-btn" href="/town_issues/admin/volunteer_tasks.php" style="text-align:center; text-decoration:none;">Tasks</a>
         </form>
     </div>
 
@@ -133,7 +133,7 @@ $stmt->close();
                             <td><?= h(truncateText($volunteer['skills'], 70)) ?></td>
                             <td><?= badge($volunteer['status']) ?></td>
                             <td><?= h(formatDateTime($volunteer['created_at'])) ?></td>
-                            <td><a class="btn-volunteer" href="volunteer_view.php?id=<?= (int)$volunteer['id'] ?>">Review</a></td>
+                            <td><a class="btn-volunteer" href="/town_issues/admin/volunteer_view.php?id=<?= (int)$volunteer['id'] ?>">Review</a></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -142,6 +142,6 @@ $stmt->close();
         <?php endif; ?>
     </div>
 </div>
-<script src="../assets/js/theme-toggle.js"></script>
+<script src="/town_issues/assets/js/theme-toggle.js"></script>
 </body>
 </html>

@@ -1,10 +1,14 @@
 <?php
 
-class Auth {
+// Handles login state, role checks, and protected route access.
+class Auth
+{
     private $conn;
     private $table_name = "users";
 
-    public function __construct($db) {
+    // Initializes this object with the data it needs.
+    public function __construct($db)
+    {
         $this->conn = $db;
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -12,7 +16,8 @@ class Auth {
     }
 
     // ================= LOGIN =================
-    public function login($email, $password) {
+    public function login($email, $password)
+    {
         $query = "SELECT id, email, password_hash, full_name, user_type, ward, is_active
                   FROM {$this->table_name}
                   WHERE LOWER(email) = LOWER(?) AND is_active = 1
@@ -42,7 +47,9 @@ class Auth {
         return false;
     }
 
-    private function updateLastLogin($user_id) {
+    // Saves the latest login time for the user.
+    private function updateLastLogin($user_id)
+    {
         $query = "UPDATE {$this->table_name}
                   SET last_login = NOW()
                   WHERE id = ?";
@@ -52,41 +59,57 @@ class Auth {
     }
 
     // ================= SESSION =================
-    public function isLoggedIn() {
+    public function isLoggedIn()
+    {
         return !empty($_SESSION['logged_in']);
     }
 
-    public function logout() {
+    // Clears the current login session.
+    public function logout()
+    {
         $_SESSION = [];
         session_destroy();
     }
 
     // ================= ROLE HELPERS =================
-    public function getRole() {
+    public function getRole()
+    {
         return $_SESSION['user_type'] ?? '';
     }
 
-    public function isCitizen() {
+    // Checks whether the current user is a citizen.
+    public function isCitizen()
+    {
         return $this->getRole() === 'citizen';
     }
 
-    public function isVolunteer() {
+    // Checks whether the current user is a volunteer.
+    public function isVolunteer()
+    {
         return $this->getRole() === 'volunteer';
     }
 
-    public function isWardAdmin() {
+    // Checks whether the current user is a ward admin.
+    public function isWardAdmin()
+    {
         return $this->getRole() === 'ward_admin';
     }
 
-    public function isMunicipalAdmin() {
+    // Checks whether the current user is a municipal admin.
+    public function isMunicipalAdmin()
+    {
         return $this->getRole() === 'municipal_admin';
     }
 
-    public function isSuperAdmin() {
+    // Checks whether the current user is a super admin.
+    public function isSuperAdmin()
+    {
         return $this->getRole() === 'super_admin';
     }
 
-    public function isAdmin() {
+    // Checks whether the current user has any admin role.
+    public function isAdmin()
+    {
         return in_array($_SESSION['user_type'] ?? '', [
             'ward_admin',
             'municipal_admin',
@@ -94,45 +117,48 @@ class Auth {
         ]);
     }
 
-    public function getWard() {
+    // Returns the ward assigned to the current user.
+    public function getWard()
+    {
         return $this->isWardAdmin() ? ($_SESSION['ward'] ?? null) : null;
     }
 
     // ================= ACCESS GUARD =================
-    public function requireAuth($required_type = null) {
+    public function requireAuth($required_type = null)
+    {
 
         if (!$this->isLoggedIn()) {
-            header("Location: /town_issues/login.php");
+            header("Location: /town_issues/auth/login.php");
             exit;
         }
 
         if ($required_type === 'citizen' && !$this->isCitizen()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
 
         if ($required_type === 'volunteer' && !$this->isVolunteer()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
 
         if ($required_type === 'ward_admin' && !$this->isWardAdmin()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
 
         if ($required_type === 'municipal_admin' && !$this->isMunicipalAdmin()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
 
         if ($required_type === 'super_admin' && !$this->isSuperAdmin()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
 
         if ($required_type === 'any_admin' && !$this->isAdmin()) {
-            header("Location: /town_issues/unauthorized.php");
+            header("Location: /town_issues/public/unauthorized.php");
             exit;
         }
     }
