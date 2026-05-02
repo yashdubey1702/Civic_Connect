@@ -1,0 +1,12 @@
+.env
+.git
+.idea
+.vscode
+node_modules
+vendor
+docs
+database
+tools
+uploads/volunteer_proofs/*
+reports/uploads/*
+!reports/uploads/.gitkeep

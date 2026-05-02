@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../app/Support/env.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
@@ -12,17 +14,20 @@ $cookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/
 $cookiePath = $cookiePath === '' ? '/' : $cookiePath;
 $alreadyCounted = isset($_COOKIE[$cookieName]);
 
-if (!is_dir(dirname($counterFile))) {
+if (!is_dir(dirname($counterFile)) && !civicconnect_is_vercel()) {
     mkdir(dirname($counterFile), 0755, true);
 }
 
 $handle = fopen($counterFile, 'c+b');
 
 if ($handle === false) {
-    http_response_code(500);
+    $fallback = is_readable($counterFile) ? json_decode((string) file_get_contents($counterFile), true) : [];
+
     echo json_encode([
-        'success' => false,
-        'message' => 'Unable to open visitor counter.'
+        'success' => true,
+        'count' => isset($fallback['count']) ? max(0, (int) $fallback['count']) : 0,
+        'counted' => false,
+        'readonly' => true
     ]);
     exit;
 }

@@ -6,6 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 require_once __DIR__ . '/../../PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/../../PHPMailer/src/Exception.php';
+require_once __DIR__ . '/env.php';
 
 // Stores the latest mail failure so calling code can show or log a useful reason.
 function civicconnect_record_mail_error($message)
@@ -22,43 +23,6 @@ function civicconnect_record_mail_error($message)
 function civicconnect_last_mail_error()
 {
     return $GLOBALS['civicconnect_last_mail_error'] ?? '';
-}
-
-// Loads environment variables once for mail configuration.
-function civicconnect_load_env_once()
-{
-    static $loaded = false;
-
-    if ($loaded) {
-        return;
-    }
-
-    $loaded = true;
-    $envFile = __DIR__ . '/../../.env';
-
-    if (!is_readable($envFile)) {
-        return;
-    }
-
-    $values = parse_ini_file($envFile, false, INI_SCANNER_RAW);
-
-    if (!is_array($values)) {
-        return;
-    }
-
-    foreach ($values as $key => $value) {
-        putenv($key . '=' . $value);
-        $_ENV[(string)$key] = $value;
-    }
-}
-
-// Reads an environment value with a fallback.
-function civicconnect_env($key, $default = '')
-{
-    civicconnect_load_env_once();
-
-    $value = getenv($key);
-    return $value === false || $value === '' ? $default : $value;
 }
 
 // Applies SMTP settings to a PHPMailer instance.

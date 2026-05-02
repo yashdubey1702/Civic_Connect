@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS `volunteer_profiles`;
 DROP TABLE IF EXISTS `password_resets`;
 DROP TABLE IF EXISTS `reports`;
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `app_sessions`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE `users` (
@@ -139,6 +140,15 @@ CREATE TABLE `notification_reads` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_notification_read` (`user_id`,`notification_key`),
   KEY `idx_notification_reads_read_at` (`read_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `app_sessions` (
+  `id` varchar(128) NOT NULL,
+  `data` mediumblob NOT NULL,
+  `updated_at` int unsigned NOT NULL,
+  `expires_at` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_app_sessions_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `user_type`, `ward`, `is_active`) VALUES
