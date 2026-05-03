@@ -125,12 +125,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Municipal Issue Reporting System</title>
-    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/auth.css">
+    <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
 <body class="register-page">
     <div class="auth-container">
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-illustration">
             <div class="illustration-content">
                 <div class="gov-logo-large">
-                    <div class="gov-logo"> <img src="/town_issues/assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/> </div>
+                    <div class="gov-logo"> <img src="/assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/> </div>
                 </div>
                 <h2>Join Our Community</h2>
                 <p>Help make Bhubaneswar a better place for everyone</p>

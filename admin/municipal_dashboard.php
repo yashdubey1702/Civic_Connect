@@ -53,15 +53,15 @@ $adminRoleLabel = $auth->isWardAdmin() ? "Ward {$safeWardLabel} Admin" : "Munici
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $adminScopeLabel ?> Admin – CivicConnect Bhubaneswar</title>
 
-    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/municipal-admin.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/notifications.css">
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/assets/css/municipal-admin.css">
+    <link rel="stylesheet" href="/assets/css/notifications.css">
 </head>
 
 <body>
@@ -246,9 +246,9 @@ $adminRoleLabel = $auth->isWardAdmin() ? "Ward {$safeWardLabel} Admin" : "Munici
 <!-- JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@mapbox/leaflet-pip@latest/leaflet-pip.min.js"></script>
-<script src="/town_issues/assets/js/theme-toggle.js"></script>
-<script src="/town_issues/assets/js/notifications.js?v=2"></script>
-<script src="/town_issues/assets/js/municipal-admin-dashboard.js?v=2"></script>
+<script src="/assets/js/theme-toggle.js"></script>
+<script src="/assets/js/notifications.js?v=2"></script>
+<script src="/assets/js/municipal-admin-dashboard.js?v=2"></script>
 
 </body>
 </html>

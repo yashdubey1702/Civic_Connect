@@ -60,10 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
   <title>CivicConnect – Reset Password</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="/town_issues/assets/css/verify_account.css">
-  <link href="/town_issues/assets/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/verify_account.css">
+  <link href="/assets/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">   
-  <link rel="stylesheet" href="/town_issues/assets/css/auth.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
 
 <body>

@@ -4,7 +4,7 @@
   "description": "Report and track civic issues in Bhubaneswar such as potholes, garbage problems, and broken streetlights.",
   "icons": [
     {
-      "src": "/town_issues/assets/images/icon-192x192.png",
+      "src": "/assets/images/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
@@ -12,14 +12,14 @@
   ],
   "screenshots": [
     {
-      "src": "/town_issues/assets/images/desktop-wide.png",
+      "src": "/assets/images/desktop-wide.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Bhubaneswar civic dashboard on desktop"
     },
     {
-      "src": "/town_issues/assets/images/mobile-narrow.png",
+      "src": "/assets/images/mobile-narrow.png",
       "sizes": "375x812",
       "type": "image/png",
       "form_factor": "narrow",

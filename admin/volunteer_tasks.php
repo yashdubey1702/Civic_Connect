@@ -125,12 +125,12 @@ if (!$auth->isWardAdmin()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Tasks - CivicConnect Admin</title>
-    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/assets/images/BRP.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/admin-dashboard.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/admin-mobile.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/volunteer-module.css">
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/admin-mobile.css">
+    <link rel="stylesheet" href="/assets/css/volunteer-module.css">
 </head>
 <body>
 <header class="gov-header">
@@ -237,6 +237,6 @@ if (!$auth->isWardAdmin()) {
         <?php endif; ?>
     </div>
 </div>
-<script src="/town_issues/assets/js/theme-toggle.js"></script>
+<script src="/assets/js/theme-toggle.js"></script>
 </body>
 </html>

@@ -1067,7 +1067,7 @@ $removedWardCount = count($wardAdmins) - $activeWardCount;
     <main class="page">
         <header class="topbar">
             <div class="brand">
-                <img src="/town_issues/assets/images/BRP.png" alt="Town Issues logo">
+                <img src="/assets/images/BRP.png" alt="Town Issues logo">
                 <span>Town Issues Maintenance</span>
             </div>
             <nav class="nav-actions" aria-label="Maintenance navigation">

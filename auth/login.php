@@ -100,12 +100,12 @@ $rememberChecked = isset($_POST['remember_me']) || ($_SERVER['REQUEST_METHOD'] !
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Municipal Issue Reporting System</title>
-    <link rel="icon" href="/town_issues/assets/images/BRP.png" type="image/png">
+    <link rel="icon" href="/assets/images/BRP.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/town_issues/assets/css/auth.css">
+    <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
 <body>
     <div class="auth-container">
@@ -113,7 +113,7 @@ $rememberChecked = isset($_POST['remember_me']) || ($_SERVER['REQUEST_METHOD'] !
         <div class="auth-illustration">
             <div class="illustration-content">
                 <div class="gov-logo">
-                    <img src="/town_issues/assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/>
+                    <img src="/assets/images/BRP.png" alt="Government Logo"class="gov-logo-image"/>
                 </div>
                 <h2>Municipal Issue Reporting System</h2>
                 <p>Report and track community issues in Bhubaneswar</p>

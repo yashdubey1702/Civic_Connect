@@ -9,43 +9,11 @@
   },
   "routes": [
     {
-      "src": "/town_issues/assets/(.*)$",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/assets/(.*)$",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/town_issues/data/(.*)$",
-      "dest": "/data/$1"
-    },
-    {
-      "src": "/data/(.*)$",
-      "dest": "/data/$1"
-    },
-    {
-      "src": "/town_issues/reports/uploads/(.*)$",
-      "dest": "/reports/uploads/$1"
-    },
-    {
-      "src": "/reports/uploads/(.*)$",
-      "dest": "/reports/uploads/$1"
-    },
-    {
-      "src": "/town_issues/uploads/(.*)$",
-      "dest": "/uploads/$1"
-    },
-    {
-      "src": "/uploads/(.*)$",
-      "dest": "/uploads/$1"
-    },
-    {
-      "src": "/town_issues/(manifest\\.json|sw\\.js)$",
+      "src": "/((?:town_issues/)?(?:assets|data|reports/uploads|uploads)/.*)$",
       "dest": "/$1"
     },
     {
-      "src": "/(manifest\\.json|sw\\.js)$",
+      "src": "/((?:town_issues/)?(?:manifest\\.json|sw\\.js))$",
       "dest": "/$1"
     },
     {

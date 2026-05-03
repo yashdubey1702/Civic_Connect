@@ -99,7 +99,7 @@ if ($isLoggedIn) {
             color: #ffffff;
             background:
                 linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 64, 175, 0.92)),
-                url('/town_issues/assets/images/BRP.png') center 56% / 180px auto no-repeat;
+                url('/assets/images/BRP.png') center 56% / 180px auto no-repeat;
         }
 
         .access-visual::after {
@@ -283,7 +283,7 @@ if ($isLoggedIn) {
         <section class="access-card" aria-labelledby="access-title">
             <div class="access-visual">
                 <div class="brand">
-                    <img src="/town_issues/assets/images/BRP.png" alt="Town Issues logo">
+                    <img src="/assets/images/BRP.png" alt="Town Issues logo">
                     <span>Town Issues</span>
                 </div>
                 <div class="security-note">
