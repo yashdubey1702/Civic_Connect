@@ -9,11 +9,25 @@
   },
   "routes": [
     {
-      "src": "/((?:town_issues/)?(?:assets|data|reports/uploads|uploads)/.*)$",
-      "dest": "/$1"
+      "src": "/town_issues/(assets|data|reports/uploads|uploads)/(.*)$",
+      "headers": {
+        "Location": "/$1/$2"
+      },
+      "status": 308
     },
     {
-      "src": "/((?:town_issues/)?(?:manifest\\.json|sw\\.js))$",
+      "src": "/town_issues/(manifest\\.json|sw\\.js)$",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308
+    },
+    {
+      "src": "/(assets|data|reports/uploads|uploads)/(.*)$",
+      "dest": "/$1/$2"
+    },
+    {
+      "src": "/(manifest\\.json|sw\\.js)$",
       "dest": "/$1"
     },
     {

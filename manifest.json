@@ -26,10 +26,10 @@
       "label": "Civic issue reporting on mobile"
     }
   ],
-  "start_url": "/town_issues/auth/login.php",
+  "start_url": "/auth/login.php",
   "background_color": "#ffffff",
   "display": "standalone",
-  "scope": "/town_issues/",
+  "scope": "/",
   "theme_color": "#0d47a1",
   "orientation": "portrait"
 }

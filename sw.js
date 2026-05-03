@@ -1,8 +1,8 @@
 // Basic Service Worker for Caching (Cache First Strategy)
-const CACHE_NAME = 'civicconnect-bhubaneswar-v1';
+const CACHE_NAME = 'civicconnect-bhubaneswar-v2';
 const urlsToCache = [
-  '/town_issues/',
-  '/town_issues/auth/login.php',
+  '/',
+  '/auth/login.php',
   '/assets/css/style.css',
   '/assets/js/map-common.js',
   '/assets/images/icon-192x192.png'
@@ -15,6 +15,19 @@ self.addEventListener('install', event => {
       .then(cache => {
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(cacheNames => Promise.all(
+        cacheNames
+          .filter(cacheName => cacheName !== CACHE_NAME)
+          .map(cacheName => caches.delete(cacheName))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 

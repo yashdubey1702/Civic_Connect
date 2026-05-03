@@ -113,7 +113,7 @@ function initMap() {
         maxZoom: 18
     }).addTo(adminMap);
 
-    fetch('/town_issues/data/Wards.geojson')
+    fetch('/data/Wards.geojson')
         .then(response => response.json())
         .then(data => {
             wardLayer = L.geoJSON(data, {
@@ -131,7 +131,7 @@ function initMap() {
         .catch(error => {
             console.error('Ward boundary load failed:', error);
         })
-        .then(() => fetch('/town_issues/data/bmc_boundary.geojson'))
+        .then(() => fetch('/data/bmc_boundary.geojson'))
         .then(response => response.json())
         .then(data => {
             bmcLayer = L.geoJSON(data, {
@@ -161,7 +161,7 @@ function populateWardFilter() {
     const select = document.getElementById('municipalityFilter');
     if (!select) return Promise.resolve();
 
-    return fetch('/town_issues/data/Wards.geojson')
+    return fetch('/data/Wards.geojson')
         .then(response => response.json())
         .then(data => {
             const wards = (data.features || [])

@@ -183,7 +183,7 @@ $success = trim($_GET['success'] ?? '');
             <?php endif; ?>
 
             <?php if (!empty($task['proof_image'])): ?>
-                <p><img class="proof-image" src="/town_issues/<?= h($task['proof_image']) ?>" alt="Volunteer proof image"></p>
+                <p><img class="proof-image" src="/<?= h($task['proof_image']) ?>" alt="Volunteer proof image"></p>
             <?php else: ?>
                 <p class="muted">No proof image submitted.</p>
             <?php endif; ?>

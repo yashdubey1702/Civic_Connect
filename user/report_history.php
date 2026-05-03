@@ -185,9 +185,9 @@ $stmt->close();
                                             <td><?php echo date('M j, Y', strtotime($report['created_at'])); ?></td>
                                             <td>
                                                 <?php if (!empty($report['image_filename'])): ?>
-                                                    <img src="/town_issues/reports/uploads/<?php echo htmlspecialchars($report['image_filename']); ?>" 
+                                                    <img src="/reports/uploads/<?php echo htmlspecialchars($report['image_filename']); ?>"
                                                          alt="Report Image" class="report-image" 
-                                                         onclick="openImageModal('/town_issues/reports/uploads/<?php echo htmlspecialchars($report['image_filename']); ?>')">
+                                                         onclick="openImageModal('/reports/uploads/<?php echo htmlspecialchars($report['image_filename']); ?>')">
                                                 <?php else: ?>
                                                     <span class="no-image">No image</span>
                                                 <?php endif; ?>

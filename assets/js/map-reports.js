@@ -224,7 +224,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
     }
 
     function loadBoundary() {
-        return fetch('/town_issues/data/Wards.geojson')
+        return fetch('/data/Wards.geojson')
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();
@@ -245,7 +245,7 @@ console.log('[MapReportsJS] Loaded (Bhubaneswar)');
             .catch(error => {
                 console.error('Ward boundary load failed:', error);
             })
-            .then(() => fetch('/town_issues/data/bmc_boundary.geojson'))
+            .then(() => fetch('/data/bmc_boundary.geojson'))
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();

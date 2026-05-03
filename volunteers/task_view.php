@@ -151,7 +151,7 @@ $success = trim($_GET['success'] ?? '');
                 <div class="volunteer-card-header"><h2><i class="fas fa-check-circle"></i> Completion Submission</h2></div>
                 <div class="volunteer-card-body">
                     <?php if (!empty($task['completion_note'])): ?><p><?= nl2br(h($task['completion_note'])) ?></p><?php endif; ?>
-                    <?php if (!empty($task['proof_image'])): ?><img class="proof-image" src="/town_issues/<?= h($task['proof_image']) ?>" alt="Volunteer proof image"><?php endif; ?>
+                    <?php if (!empty($task['proof_image'])): ?><img class="proof-image" src="/<?= h($task['proof_image']) ?>" alt="Volunteer proof image"><?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
